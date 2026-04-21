@@ -48,7 +48,7 @@ def normalize_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     for col in df.columns:
         if df[col].dtype == 'object':
             df[col] = df[col].replace(r'^\s*$', np.nan, regex=True)
-            df[col] = df[col].replace({'(Blank)': np.nan, 'N/A': np.nan, 'n/a': np.nan})
+            df[col] = df[col].replace({' ': np.nan, '(Blank)': np.nan, 'N/A': np.nan, 'n/a': np.nan})
 
     return df
 
@@ -266,7 +266,7 @@ def generate_report(before_df: pd.DataFrame, after_df: pd.DataFrame, path: str) 
 
 
 def main():
-    df = pd.read_csv(INPUT_FILE, low_memory=False)
+    df = pd.read_csv(INPUT_FILE, low_memory=False, na_values=[' ', '  ', '   '], keep_default_na=True)
     df_before = df.copy()
 
     # 0) Convertir les coordonnées Lambert93 en WGS84

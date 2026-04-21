@@ -3,3 +3,5 @@ BigData/data/Patrimoine_Arboré_data_clean.csv
 BigData/data/Patrimoine_Arboré_data_clean.xlsx
 BigData/data/rapport_nettoyage.txt
 BigData/nettoyage/.venv/
+.DS_Store
+.idea/

@@ -40,58 +40,6 @@ def convert_lambert93_to_wgs84(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
-def detect_outliers(df: pd.DataFrame) -> None:
-    """Détecte et affiche les valeurs aberrantes (outliers) pour les colonnes numériques."""
-    print("\n" + "="*80)
-    print("DÉTECTION DES VALEURS ABERRANTES (Méthode IQR)")
-    print("="*80)
-    
-    # Fichier rapport des outliers
-    outliers_file = '../data/rapport_outliers.txt'
-    lines = []
-    lines.append('RAPPORT DES VALEURS ABERRANTES\n')
-    lines.append('Méthode : IQR (Interquartile Range)\n')
-    lines.append('Limites : [Q1 - 1.5*IQR, Q3 + 1.5*IQR]\n\n')
-    
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
-    
-    for col in numeric_cols:
-        Q1 = df[col].quantile(0.25)
-        Q3 = df[col].quantile(0.75)
-        IQR = Q3 - Q1
-        
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        
-        outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
-        
-        if len(outliers) > 0:
-            print(f"\n{col}:")
-            print(f"  Q1={Q1:.4f}, Q3={Q3:.4f}, IQR={IQR:.4f}")
-            print(f"  Limites: [{lower_bound:.4f}, {upper_bound:.4f}]")
-            print(f"  Nombre d'outliers: {len(outliers)} ({len(outliers)/len(df)*100:.2f}%)")
-            print(f"  Min/Max en dehors limites: {outliers[col].min():.4f} / {outliers[col].max():.4f}")
-            
-            # Ajouter au rapport
-            lines.append(f"\n{col}:\n")
-            lines.append(f"  Q1={Q1:.4f}, Q3={Q3:.4f}, IQR={IQR:.4f}\n")
-            lines.append(f"  Limites: [{lower_bound:.4f}, {upper_bound:.4f}]\n")
-            lines.append(f"  Nombre d'outliers: {len(outliers)} ({len(outliers)/len(df)*100:.2f}%)\n")
-            lines.append(f"  Min/Max en dehors limites: {outliers[col].min():.4f} / {outliers[col].max():.4f}\n")
-            
-            # Afficher les indices des outliers pour les supprimer si besoin
-            outlier_indices = outliers.index.tolist()
-            lines.append(f"  Indices des outliers (premiers 20): {outlier_indices[:20]}\n")
-            if len(outlier_indices) > 20:
-                lines.append(f"  ... et {len(outlier_indices) - 20} autres\n")
-    
-    print("\n" + "="*80)
-    
-    # Sauvegarder le rapport
-    with open(outliers_file, 'w', encoding='utf-8') as f:
-        f.writelines(lines)
-    
-    print(f"✓ Rapport des outliers sauvegardé : {outliers_file}")
 
 
 def normalize_missing_values(df: pd.DataFrame) -> pd.DataFrame:
@@ -169,7 +117,34 @@ def clean_target_column(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+def clean_impossible_values(df: pd.DataFrame) -> pd.DataFrame:
+    df = df.copy()
 
+    # hauteur totale
+    if 'haut_tot' in df.columns:
+        HAUT_TOT_MAX = 70  # seuil réaliste pour un arbre en milieu urbain
+        df.loc[(df['haut_tot'] <= 0) | (df['haut_tot'] > HAUT_TOT_MAX), 'haut_tot'] = np.nan
+
+    # hauteur du tronc
+    if 'haut_tronc' in df.columns:
+        HAUT_TRONC_MAX = 40  # un tronc de plus de 40m serait très suspect
+        df.loc[(df['haut_tronc'] <= 0) | (df['haut_tronc'] > HAUT_TRONC_MAX), 'haut_tronc'] = np.nan
+
+    # incohérence : tronc plus haut que l'arbre
+    if 'haut_tot' in df.columns and 'haut_tronc' in df.columns:
+        df.loc[df['haut_tronc'] > df['haut_tot'], 'haut_tronc'] = np.nan
+
+    # diamètre du tronc en mètres
+    if 'tronc_diam' in df.columns:
+        TRONC_DIAM_MAX = 6  # un tronc de plus de 6m serait très suspect
+        df.loc[(df['tronc_diam'] <= 0) | (df['tronc_diam'] > TRONC_DIAM_MAX), 'tronc_diam'] = np.nan
+
+    # âge
+    if 'age_estim' in df.columns:
+        AGE_MAX = 300  # un arbre de plus de 300 ans serait très suspect (sauf cas exceptionnel, mais on préfère perdre quelques vieux arbres que d'avoir des âges complètement délirants)
+        df.loc[(df['age_estim'] < 0) | (df['age_estim'] > AGE_MAX), 'age_estim'] = np.nan
+
+    return df
 
 
 def fill_age_from_planting_date(df: pd.DataFrame) -> pd.DataFrame:
@@ -408,14 +383,13 @@ def main():
     # 9) Supprimer les colonnes inutiles
     df = drop_columns(df)
 
-    # 10) Imputer les valeurs manquantes pour les colonnes numériques
-    df = impute_numeric_values(df)
+    # 10a) Mettre à NaN les valeurs impossibles avant imputation
+    df = clean_impossible_values(df)
 
+    # 10b) Imputer les valeurs manquantes pour les colonnes numériques
+    df = impute_numeric_values(df)
     # 11) Supprimer les doublons exacts de lignes si présents
     df = df.drop_duplicates().reset_index(drop=True)
-
-    # 11b) Détecter et sauvegarder les outliers
-    detect_outliers(df)
 
     # 12) Sauvegardes
     df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8-sig')

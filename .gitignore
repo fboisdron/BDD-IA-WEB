@@ -5,3 +5,4 @@ BigData/data/rapport_nettoyage.txt
 BigData/nettoyage/.venv/
 .DS_Store
 .idea/
+BigData/data/rapport_outliers.txt

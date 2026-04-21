@@ -40,6 +40,60 @@ def convert_lambert93_to_wgs84(df: pd.DataFrame) -> pd.DataFrame:
     
     return df
 
+def detect_outliers(df: pd.DataFrame) -> None:
+    """Détecte et affiche les valeurs aberrantes (outliers) pour les colonnes numériques."""
+    print("\n" + "="*80)
+    print("DÉTECTION DES VALEURS ABERRANTES (Méthode IQR)")
+    print("="*80)
+    
+    # Fichier rapport des outliers
+    outliers_file = '../data/rapport_outliers.txt'
+    lines = []
+    lines.append('RAPPORT DES VALEURS ABERRANTES\n')
+    lines.append('Méthode : IQR (Interquartile Range)\n')
+    lines.append('Limites : [Q1 - 1.5*IQR, Q3 + 1.5*IQR]\n\n')
+    
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    
+    for col in numeric_cols:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        outliers = df[(df[col] < lower_bound) | (df[col] > upper_bound)]
+        
+        if len(outliers) > 0:
+            print(f"\n{col}:")
+            print(f"  Q1={Q1:.4f}, Q3={Q3:.4f}, IQR={IQR:.4f}")
+            print(f"  Limites: [{lower_bound:.4f}, {upper_bound:.4f}]")
+            print(f"  Nombre d'outliers: {len(outliers)} ({len(outliers)/len(df)*100:.2f}%)")
+            print(f"  Min/Max en dehors limites: {outliers[col].min():.4f} / {outliers[col].max():.4f}")
+            
+            # Ajouter au rapport
+            lines.append(f"\n{col}:\n")
+            lines.append(f"  Q1={Q1:.4f}, Q3={Q3:.4f}, IQR={IQR:.4f}\n")
+            lines.append(f"  Limites: [{lower_bound:.4f}, {upper_bound:.4f}]\n")
+            lines.append(f"  Nombre d'outliers: {len(outliers)} ({len(outliers)/len(df)*100:.2f}%)\n")
+            lines.append(f"  Min/Max en dehors limites: {outliers[col].min():.4f} / {outliers[col].max():.4f}\n")
+            
+            # Afficher les indices des outliers pour les supprimer si besoin
+            outlier_indices = outliers.index.tolist()
+            lines.append(f"  Indices des outliers (premiers 20): {outlier_indices[:20]}\n")
+            if len(outlier_indices) > 20:
+                lines.append(f"  ... et {len(outlier_indices) - 20} autres\n")
+    
+    print("\n" + "="*80)
+    
+    # Sauvegarder le rapport
+    with open(outliers_file, 'w', encoding='utf-8') as f:
+        f.writelines(lines)
+    
+    print(f"✓ Rapport des outliers sauvegardé : {outliers_file}")
+
+
 def normalize_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """Uniformise les valeurs vides en NaN."""
     df = df.copy()
@@ -222,24 +276,64 @@ def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
 def impute_numeric_values(df: pd.DataFrame) -> pd.DataFrame:
     """Impute les valeurs manquantes pour les colonnes numériques."""
     df = df.copy()
-    
+
     # Colonnes à imputer avec la moyenne
     cols_with_mean = ['haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim']
+
+    stadedev_norm = None
+    if 'fk_stadedev' in df.columns:
+        stadedev_norm = (
+            df['fk_stadedev']
+            .astype(str)
+            .str.strip()
+            .str.lower()
+            .str.replace('é', 'e', regex=False)
+        )
+        stadedev_norm = stadedev_norm.replace({
+            '': 'n/a',
+            'na': 'n/a',
+            'nan': 'n/a',
+            'none': 'n/a',
+        })
+
+    allowed_stages = ['adulte', 'jeune', 'senescent', 'vieux']
+
     for col in cols_with_mean:
         if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
             mean_val = df[col].mean()
             missing_count = df[col].isna().sum()
             if missing_count > 0:
-                df[col] = df[col].fillna(mean_val)
-                print(f"✓ {col}: {missing_count} valeurs manquantes remplies avec la moyenne ({mean_val:.2f})")
-    
+                filled_with_stage_mean = 0
+
+                if stadedev_norm is not None:
+                    for stage in allowed_stages:
+                        stage_mean = df.loc[stadedev_norm == stage, col].mean()
+                        if pd.notna(stage_mean):
+                            stage_mask = df[col].isna() & (stadedev_norm == stage)
+                            stage_count = int(stage_mask.sum())
+                            if stage_count > 0:
+                                df.loc[stage_mask, col] = stage_mean
+                                filled_with_stage_mean += stage_count
+
+                remaining_count = int(df[col].isna().sum())
+                if remaining_count > 0 and pd.notna(mean_val):
+                    df[col] = df[col].fillna(mean_val)
+
+                print(
+                    f"✓ {col}: {missing_count} valeurs manquantes, "
+                    f"{filled_with_stage_mean} remplies par moyenne de fk_stadedev, "
+                    f"{remaining_count} par moyenne globale ({mean_val:.2f})"
+                )
+
     # clc_nbr_diag à imputer avec 0
     if 'clc_nbr_diag' in df.columns:
+        df['clc_nbr_diag'] = pd.to_numeric(df['clc_nbr_diag'], errors='coerce')
         missing_count = df['clc_nbr_diag'].isna().sum()
         if missing_count > 0:
             df['clc_nbr_diag'] = df['clc_nbr_diag'].fillna(0)
             print(f"✓ clc_nbr_diag: {missing_count} valeurs manquantes remplies avec 0")
-    
+
     return df
 
 
@@ -319,6 +413,9 @@ def main():
 
     # 11) Supprimer les doublons exacts de lignes si présents
     df = df.drop_duplicates().reset_index(drop=True)
+
+    # 11b) Détecter et sauvegarder les outliers
+    detect_outliers(df)
 
     # 12) Sauvegardes
     df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8-sig')

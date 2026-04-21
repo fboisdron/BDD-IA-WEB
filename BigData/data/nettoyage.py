@@ -219,6 +219,30 @@ def drop_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df.drop(columns=existing)
 
 
+def impute_numeric_values(df: pd.DataFrame) -> pd.DataFrame:
+    """Impute les valeurs manquantes pour les colonnes numériques."""
+    df = df.copy()
+    
+    # Colonnes à imputer avec la moyenne
+    cols_with_mean = ['haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim']
+    for col in cols_with_mean:
+        if col in df.columns:
+            mean_val = df[col].mean()
+            missing_count = df[col].isna().sum()
+            if missing_count > 0:
+                df[col] = df[col].fillna(mean_val)
+                print(f"✓ {col}: {missing_count} valeurs manquantes remplies avec la moyenne ({mean_val:.2f})")
+    
+    # clc_nbr_diag à imputer avec 0
+    if 'clc_nbr_diag' in df.columns:
+        missing_count = df['clc_nbr_diag'].isna().sum()
+        if missing_count > 0:
+            df['clc_nbr_diag'] = df['clc_nbr_diag'].fillna(0)
+            print(f"✓ clc_nbr_diag: {missing_count} valeurs manquantes remplies avec 0")
+    
+    return df
+
+
 def generate_report(before_df: pd.DataFrame, after_df: pd.DataFrame, path: str) -> None:
     lines = []
     lines.append('RAPPORT DE NETTOYAGE\n')
@@ -290,10 +314,13 @@ def main():
     # 9) Supprimer les colonnes inutiles
     df = drop_columns(df)
 
-    # 10) Supprimer les doublons exacts de lignes si présents
+    # 10) Imputer les valeurs manquantes pour les colonnes numériques
+    df = impute_numeric_values(df)
+
+    # 11) Supprimer les doublons exacts de lignes si présents
     df = df.drop_duplicates().reset_index(drop=True)
 
-    # 11) Sauvegardes
+    # 12) Sauvegardes
     df.to_csv(OUTPUT_FILE, index=False, encoding='utf-8-sig')
     df.to_excel(OUTPUT_FILE.replace('.csv', '.xlsx'), index=False)
     generate_report(df_before, df, RAPPORT_FILE)

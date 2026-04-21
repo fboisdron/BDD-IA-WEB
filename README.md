@@ -33,7 +33,7 @@ pip install -r nettoyage/requirements.txt
 Le script doit être lancé depuis `BigData/data` pour que les chemins relatifs fonctionnent correctement.
 
 ```bash
-cd data
+cd nettoyage
 python nettoyage.py
 ```
 

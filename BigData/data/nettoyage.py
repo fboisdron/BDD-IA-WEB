@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from pyproj import Transformer
 
 INPUT_FILE = '../data/Patrimoine_Arboré_data.csv'   # à adapter si besoin
 OUTPUT_FILE = '../data/Patrimoine_Arboré_data_clean.csv'
@@ -10,6 +11,34 @@ RAPPORT_FILE = '../data/rapport_nettoyage.txt'
 # pour rester cohérent avec le jeu de données et éviter d'utiliser la date du jour.
 REFERENCE_DATE = pd.Timestamp('2018-01-15', tz='UTC')
 
+
+def convert_lambert93_to_wgs84(df: pd.DataFrame) -> pd.DataFrame:
+    """Convertit les coordonnées Lambert93 (X, Y) en WGS84 (Latitude, Longitude)."""
+    df = df.copy()
+    
+    if 'X' in df.columns and 'Y' in df.columns:
+        # Transformer Lambert93 (EPSG:2154) -> WGS84 (EPSG:4326)
+        transformer = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+        
+        # Convertir les colonnes X et Y en numériques (ignorer les erreurs)
+        df['X'] = pd.to_numeric(df['X'], errors='coerce')
+        df['Y'] = pd.to_numeric(df['Y'], errors='coerce')
+        
+        # Appliquer la transformation
+        lons, lats = transformer.transform(df['X'].values, df['Y'].values)
+        
+        # Remplacer X par Longitude et Y par Latitude
+        df['Longitude'] = lons
+        df['Latitude'] = lats
+        
+        # Supprimer les anciennes colonnes X et Y
+        df = df.drop(columns=['X', 'Y'])
+        
+        print("✓ Conversion Lambert93 → WGS84 effectuée")
+        print(f"  Exemples :")
+        print(df[['Latitude', 'Longitude']].head())
+    
+    return df
 
 def normalize_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     """Uniformise les valeurs vides en NaN."""
@@ -206,6 +235,9 @@ def main():
     df = pd.read_csv(INPUT_FILE, low_memory=False)
     df_before = df.copy()
 
+    # 0) Convertir les coordonnées Lambert93 en WGS84
+    df = convert_lambert93_to_wgs84(df)
+
     # 1) Uniformiser les NA
     df = normalize_missing_values(df)
 
@@ -221,7 +253,7 @@ def main():
     # 5) Compléter l'âge via la date de plantation quand possible
     df = fill_age_from_planting_date(df)
 
-    # 6) Remplacement des NA sur variables qualitatives
+    # 6) Remplissement des NA sur variables qualitatives
     categorical_na_cols = [
         'remarquable', 'feuillage', 'nomlatin', 'nomfrancais', 'villeca',
         'fk_nomtech', 'fk_revetement', 'fk_situation', 'fk_pied',

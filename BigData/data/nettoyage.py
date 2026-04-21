@@ -17,8 +17,8 @@ def convert_lambert93_to_wgs84(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
     
     if 'X' in df.columns and 'Y' in df.columns:
-        # Transformer Lambert93 (EPSG:2154) -> WGS84 (EPSG:4326)
-        transformer = Transformer.from_crs("EPSG:2154", "EPSG:4326", always_xy=True)
+        # Transformer RGF93 / CC49 (EPSG:3949) -> WGS84 (EPSG:4326)
+        transformer = Transformer.from_crs("EPSG:3949", "EPSG:4326", always_xy=True)
         
         # Convertir les colonnes X et Y en numériques (ignorer les erreurs)
         df['X'] = pd.to_numeric(df['X'], errors='coerce')
@@ -34,7 +34,7 @@ def convert_lambert93_to_wgs84(df: pd.DataFrame) -> pd.DataFrame:
         # Supprimer les anciennes colonnes X et Y
         df = df.drop(columns=['X', 'Y'])
         
-        print("✓ Conversion Lambert93 → WGS84 effectuée")
+        print("✓ Conversion RGF93 / CC49 → WGS84 effectuée")
         print(f"  Exemples :")
         print(df[['Latitude', 'Longitude']].head())
     
@@ -178,6 +178,16 @@ def replace_zero_with_nan(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df
 
 
+def convert_cm_to_meters(df: pd.DataFrame) -> pd.DataFrame:
+    """Convertit tronc_diam de centimètres en mètres."""
+    df = df.copy()
+    if 'tronc_diam' in df.columns:
+        df['tronc_diam'] = pd.to_numeric(df['tronc_diam'], errors='coerce')
+        df['tronc_diam'] = df['tronc_diam'] / 100
+        print("✓ tronc_diam converti de cm en mètres")
+    return df
+
+
 def fill_categorical_na(df: pd.DataFrame, cols: list[str], fill_value='N/A') -> pd.DataFrame:
     """Remplace les valeurs manquantes de colonnes qualitatives par une catégorie explicite."""
     df = df.copy()
@@ -249,6 +259,9 @@ def main():
 
     # 4) Colonnes numériques : 0 => NaN si valeur non crédible
     df = replace_zero_with_nan(df, ['haut_tot', 'haut_tronc', 'tronc_diam'])
+
+    # 4b) Convertir tronc_diam de cm en mètres
+    df = convert_cm_to_meters(df)
 
     # 5) Compléter l'âge via la date de plantation quand possible
     df = fill_age_from_planting_date(df)

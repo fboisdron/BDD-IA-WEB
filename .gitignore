@@ -2,8 +2,12 @@
 BigData/data/Patrimoine_Arboré_data_clean.csv
 BigData/data/Patrimoine_Arboré_data_clean.xlsx
 BigData/data/rapport_nettoyage.txt
+BigData/data/figures
 BigData/nettoyage/.venv/
 .DS_Store
 .idea/
 BigData/data/rapport_outliers.txt
+
 BigData/data/~$Patrimoine_Arboré_data_clean.xlsx
+BigData/4-etude-correlation/figures
+BigData/.venv

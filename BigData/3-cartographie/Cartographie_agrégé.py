@@ -7,7 +7,7 @@ from matplotlib.lines import Line2D
 import numpy as np
 
 # === 1. Charger ===
-file_path = "/home/isen/BDD-IA-WEB/BigData/data/Patrimoine_Arboré_data_clean.csv"
+file_path = "../data/Patrimoine_Arboré_data_clean.csv"
 df = pd.read_csv(file_path)
 
 # === 2. Colonnes ===

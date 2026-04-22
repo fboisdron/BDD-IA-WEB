@@ -5,7 +5,7 @@ from shapely.geometry import Point
 import contextily as ctx
 
 # === 1. Charger le fichier ===
-file_path = "/home/isen/BDD-IA-WEB/BigData/data/Patrimoine_Arboré_data_clean.csv"
+file_path = "../data/Patrimoine_Arboré_data_clean.csv"
 df = pd.read_csv(file_path)
 
 # === 2. Colonnes (index Excel → Python) ===

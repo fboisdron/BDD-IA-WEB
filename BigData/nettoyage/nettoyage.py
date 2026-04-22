@@ -217,12 +217,25 @@ def convert_cm_to_meters(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def fill_categorical_na(df: pd.DataFrame, cols: list[str], fill_value='N/A') -> pd.DataFrame:
+def fill_categorical_na(
+    df: pd.DataFrame,
+    cols: list[str],
+    fill_value='N/A',
+    fill_by_col: dict[str, object] | None = None,
+) -> pd.DataFrame:
     """Remplace les valeurs manquantes de colonnes qualitatives par une catégorie explicite."""
     df = df.copy()
     for col in cols:
         if col in df.columns:
-            df[col] = df[col].fillna(fill_value)
+            current_fill = fill_by_col.get(col, fill_value) if fill_by_col else fill_value
+
+            if col == 'id_arbre':
+                df[col] = pd.to_numeric(df[col], errors='coerce').fillna(current_fill).astype('Int64')
+            elif isinstance(current_fill, str):
+                df[col] = df[col].astype('object')
+                df[col] = df[col].fillna(current_fill)
+            else:
+                df[col] = df[col].fillna(current_fill)
     return df
 
 
@@ -363,9 +376,15 @@ def main():
     categorical_na_cols = [
         'remarquable', 'feuillage', 'nomlatin', 'nomfrancais', 'villeca',
         'fk_nomtech', 'fk_revetement', 'fk_situation', 'fk_pied',
-        'fk_stadedev', 'fk_port', 'fk_arb_etat'
+        'fk_stadedev', 'fk_port', 'fk_arb_etat',
+        'clc_quartier', 'clc_secteur', 'id_arbre'
     ]
-    df = fill_categorical_na(df, categorical_na_cols, fill_value='N/A')
+    df = fill_categorical_na(
+        df,
+        categorical_na_cols,
+        fill_value='N/A',
+        fill_by_col={'id_arbre': -1},
+    )
 
     # 7) fk_prec_estim : garder la logique métier simple
     # - si age_estim est manquant => précision sans sens -> N/A

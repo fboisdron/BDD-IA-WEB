@@ -12,13 +12,7 @@
 
 ![Corrplot](figures/A1_corrplot.png)
 
-| | age_estim | haut_tot | haut_tronc | tronc_diam | clc_nbr_diag |
-|---|---|---|---|---|---|
-| **age_estim** | 1.000 | 0.601 | 0.490 | **0.769** | 0.363 |
-| **haut_tot** | 0.601 | 1.000 | 0.516 | 0.685 | 0.357 |
-| **tronc_diam** | 0.769 | 0.685 | 0.401 | 1.000 | 0.347 |
-
-Le diamètre du tronc est la variable numérique la plus corrélée à l'âge (r = 0.769), devant la hauteur totale (r = 0.601). Ces corrélations élevées justifient leur inclusion comme prédicteurs principaux.
+Le diamètre du tronc est la variable numérique la plus corrélée à l'âge (r = 0.769), devant la hauteur totale (r = 0.601) et la hauteur de tronc (r = 0.490). Ces corrélations élevées justifient leur inclusion comme prédicteurs principaux.
 
 ---
 
@@ -31,17 +25,7 @@ age_estim ~ haut_tot + haut_tronc + tronc_diam + clc_nbr_diag
            + fk_stadedev + feuillage + remarquable
 ```
 
-**Performances du modèle :**
-
-| Métrique | Valeur |
-|---|---|
-| R² | **0.7449** |
-| R² ajusté | 0.7446 |
-| RMSE | **10.31 ans** |
-| F-statistic | 3622 (p < 2.2e-16) |
-| Effectif | 11 177 observations |
-
-Le modèle explique **74.5 %** de la variance de l'âge estimé, avec une erreur moyenne d'environ **10 ans**.
+Le modèle explique **74.5 % de la variance** de l'âge estimé (R² = 0.7449, R² ajusté = 0.7446) avec une erreur moyenne de **10.3 ans** (RMSE). Le F-statistic de 3622 (p < 2.2e-16) confirme la significativité globale du modèle sur 11 177 observations.
 
 ---
 
@@ -49,19 +33,7 @@ Le modèle explique **74.5 %** de la variance de l'âge estimé, avec une erreur
 
 ![Coefficients](figures/A5_coefficients.png)
 
-| Variable | Coefficient | Interprétation |
-|---|---|---|
-| `remarquableOui` | +30.40 | Un arbre remarquable est estimé **30 ans plus vieux** toutes choses égales par ailleurs |
-| `fk_stadedevjeune` | −15.80 | Un arbre jeune est estimé **16 ans moins vieux** qu'un adulte |
-| `tronc_diam` | +15.54 | Chaque mètre supplémentaire de diamètre ajoute **15.5 ans** |
-| `fk_stadedevvieux` | +9.28 | Stade vieux = **+9 ans** vs adulte |
-| `fk_stadedevsenescent` | +8.34 | Stade sénescent = **+8 ans** vs adulte |
-| `feuillageFeuillu` | +4.24 | Les feuillus sont estimés **4 ans plus vieux** que les conifères |
-| `clc_nbr_diag` | +2.56 | Chaque diagnostic supplémentaire ajoute **2.6 ans** |
-| `haut_tronc` | +2.26 | Chaque mètre de hauteur de tronc ajoute **2.3 ans** |
-| `haut_tot` | −0.11 | Effet négatif très faible (redondance avec tronc_diam) |
-
-Toutes les variables sont significatives à p < 0.001, sauf `haut_tot` (p ≈ 2.1e-5, restée au seuil).
+Toutes les variables retenues sont significatives à p < 0.001. Les effets les plus importants sont les suivants. Un arbre classé **remarquable** est estimé 30 ans plus vieux toutes choses égales par ailleurs — c'est le coefficient le plus élevé en valeur absolue. Le stade **jeune** retranche 16 ans par rapport au stade adulte (référence), tandis que les stades **vieux** et **sénescent** en ajoutent respectivement 9 et 8. Chaque mètre supplémentaire de **diamètre de tronc** ajoute 15.5 ans, ce qui confirme son rôle de prédicteur morphologique central. Les **feuillus** sont estimés 4 ans plus vieux que les conifères, et chaque **diagnostic** supplémentaire ajoute 2.6 ans (signe d'un suivi accru des arbres âgés). La hauteur totale a un effet légèrement négatif (−0.11) dû à sa redondance avec le diamètre.
 
 ---
 
@@ -70,8 +42,7 @@ Toutes les variables sont significatives à p < 0.001, sauf `haut_tot` (p ≈ 2.
 ![Résidus vs ajustés](figures/A4a_residus_vs_ajustes.png)
 ![Q-Q plot](figures/A4b_qqplot.png)
 
-- **Résidus vs valeurs ajustées** : la variance des résidus est globalement stable (légère hétéroscédasticité pour les grands âges), sans structure systématique marquée.
-- **Q-Q plot** : la normalité des résidus est respectée au centre de la distribution ; les queues montrent quelques valeurs extrêmes, attendues pour un jeu de données avec des arbres très anciens.
+Le graphique résidus/valeurs ajustées ne montre pas de structure systématique marquée, bien qu'une légère hétéroscédasticité apparaisse pour les grands âges (peu représentés). Le Q-Q plot confirme la normalité des résidus au centre de la distribution ; les queues présentent quelques valeurs extrêmes, attendues pour des arbres très anciens.
 
 ---
 
@@ -79,14 +50,13 @@ Toutes les variables sont significatives à p < 0.001, sauf `haut_tot` (p ≈ 2.
 
 ![Observées vs prédites](figures/A6_observed_vs_predicted.png)
 
-Les prédictions suivent bien la diagonale (ligne rouge idéale). La dispersion s'élargit pour les ages > 80 ans (peu représentés), ce qui est cohérent avec un effectif réduit dans ces classes d'âge.
+Les prédictions suivent bien la diagonale idéale. La dispersion s'élargit pour les âges supérieurs à 80 ans, ce qui est cohérent avec le faible effectif dans ces classes.
 
 ---
 
 ## Partie B – Régression logistique : identifier les arbres à abattre
 
-**Variable cible :** `fk_arb_etat` — **ABATTU = 1** (860 cas) / **EN PLACE = 0** (10 317 cas)  
-**Découpage :** 70 % entraînement / 30 % test — graine fixée à 42
+La variable cible est `fk_arb_etat` encodée en binaire (ABATTU = 1, EN PLACE = 0). Le jeu de données est très déséquilibré : 860 abattus (7.7 %) pour 10 317 arbres en place. Le découpage est 70 % entraînement / 30 % test, graine fixée à 42.
 
 ### B.1 – Modèle sélectionné (stepAIC)
 
@@ -95,28 +65,13 @@ abattu ~ haut_tot + haut_tronc + age_estim + clc_nbr_diag
        + fk_stadedev + fk_situation + feuillage + remarquable
 ```
 
-`tronc_diam` a été retiré par le stepAIC (colinéarité avec `age_estim`).
+`tronc_diam` a été retiré par le stepAIC en raison de sa colinéarité avec `age_estim`.
 
 ---
 
 ### B.2 – Performances sur le jeu de test
 
-**Matrice de confusion (seuil 0.5) :**
-
-| | Réel 0 (EN PLACE) | Réel 1 (ABATTU) |
-|---|---|---|
-| **Prédit 0** | 3 092 | 235 |
-| **Prédit 1** | 2 | 25 |
-
-| Métrique | Valeur | Commentaire |
-|---|---|---|
-| Accuracy | 92.9 % | Trompeuse (classes déséquilibrées) |
-| Précision | 92.6 % | Quand on prédit abattu, on a raison 93 % du temps |
-| Rappel | 9.6 % | Le modèle ne détecte que 10 % des arbres à abattre |
-| F1-score | 0.174 | Faible — reflet du déséquilibre des classes |
-| **AUC** | **0.716** | Discrimination correcte, meilleure qu'aléatoire |
-
-Le déséquilibre fort (7.7 % d'abattus) explique le faible rappel au seuil 0.5. Pour un usage opérationnel, il faudrait abaisser le seuil de décision ou rééchantillonner les classes (SMOTE).
+Sur le jeu de test, le modèle classe correctement 3 092 des 3 094 arbres en place (quasi-parfait), mais ne détecte que 25 des 260 abattus réels. L'accuracy de 92.9 % est trompeuse : elle reflète surtout la classe majoritaire. Le rappel de 9.6 % et le F1-score de 0.174 traduisent la difficulté à détecter les abattus au seuil par défaut de 0.5. L'**AUC de 0.716** reste satisfaisante et indique une discrimination correcte entre les deux classes. Pour un usage opérationnel, il faudrait abaisser le seuil de décision ou rééchantillonner les classes (ex. SMOTE).
 
 ---
 
@@ -124,7 +79,7 @@ Le déséquilibre fort (7.7 % d'abattus) explique le faible rappel au seuil 0.5.
 
 ![Courbe ROC](figures/B4_roc_curve.png)
 
-L'AUC de **0.716** indique que le modèle discrimine correctement les arbres abattus des arbres en place, malgré le déséquilibre. La courbe se détache nettement de la diagonale aléatoire.
+L'AUC de 0.716 confirme que le modèle discrimine les arbres abattus nettement mieux qu'un classifieur aléatoire (AUC = 0.5). La courbe se détache clairement de la diagonale.
 
 ---
 
@@ -132,25 +87,13 @@ L'AUC de **0.716** indique que le modèle discrimine correctement les arbres aba
 
 ![Odds Ratios](figures/B5_odds_ratios.png)
 
-| Variable | OR | Interprétation |
-|---|---|---|
-| `fk_stadedevvieux` | **15.2** | Les arbres vieux ont 15× plus de risque d'être abattus |
-| `clc_nbr_diag` | **2.26** | Chaque diagnostic supplémentaire double le risque |
-| `fk_situationIsolé` | **1.64** | Les arbres isolés sont plus souvent abattus |
-| `feuillageFeuillu` | **1.39** | Les feuillus légèrement plus abattus que les conifères |
-| `remarquableOui` | **0.14** | Les arbres remarquables sont très protégés (−86 % de risque) |
-| `fk_stadedevjeune` | **0.39** | Les jeunes arbres sont peu abattus (−61 %) |
-
-**Conclusion :** les arbres vieux en mauvais état sanitaire (clc_nbr_diag élevé), isolés et non remarquables sont les profils les plus à risque d'abattage.
+Le facteur le plus discriminant est le **stade vieux** (OR = 15.2) : les arbres vieux ont 15 fois plus de risque d'être abattus qu'un arbre adulte. À l'inverse, les arbres **remarquables** sont très protégés (OR = 0.14, soit −86 % de risque) et les **jeunes** arbres rarement abattus (OR = 0.39). Chaque **diagnostic** supplémentaire multiplie le risque par 2.26, et les arbres **isolés** sont plus vulnérables que ceux en alignement (OR = 1.64). Le profil à risque est donc un arbre vieux, isolé, avec plusieurs diagnostics et non remarquable.
 
 ---
 
 ## Partie C – Zones prioritaires de plantation
 
-**Objectif :** identifier les quartiers où la ville devrait concentrer ses nouvelles plantations pour harmoniser le développement arboré.
-
-**Score de besoin :** `score = % abattus + (100 − % jeunes) / 2`  
-Un score élevé signale un quartier avec beaucoup d'abattages et peu de renouvellement.
+L'objectif est d'identifier les quartiers où la ville devrait concentrer ses nouvelles plantations pour harmoniser le développement arboré. Un score de besoin est calculé comme suit : `score = % abattus + (100 − % jeunes) / 2`. Un score élevé signale un quartier avec beaucoup d'abattages et peu de renouvellement.
 
 ### C.1 – Répartition des stades par quartier
 
@@ -160,35 +103,14 @@ Un score élevé signale un quartier avec beaucoup d'abattages et peu de renouve
 
 ![Score plantation](figures/C2_score_plantation.png)
 
-| Quartier | Total | % Jeunes | % Abattus | Score | Priorité |
-|---|---|---|---|---|---|
-| Quartier de Neuville | 302 | 10.6 % | 19.2 % | **66.7** | ★★★ |
-| Quartier du Centre-Ville | 740 | 29.1 % | 26.8 % | **62.2** | ★★★ |
-| Quartier de l'Europe | 1 428 | 13.0 % | 13.9 % | **57.4** | ★★ |
-| HARLY | 156 | 3.9 % | 8.3 % | **56.4** | ★★ |
-| Quartier Saint-Jean | 746 | 23.7 % | 13.3 % | **51.5** | ★★ |
-| Quartier du Vermandois | 1 416 | 70.4 % | 1.1 % | **15.4** | ✓ (sain) |
+Le **Quartier de Neuville** obtient le score le plus élevé (66.7) avec seulement 10.6 % de jeunes arbres et 19.2 % d'abattus : c'est la zone la plus urgente. Le **Centre-Ville** suit (62.2) avec un taux d'abattage de 26.8 %, le plus fort de la ville. Le **Quartier de l'Europe** (57.4) est un grand quartier peu renouvelé (13 % de jeunes) offrant un fort potentiel de verdissement. À l'opposé, le **Quartier du Vermandois** affiche 70 % de jeunes arbres et 1.1 % d'abattus : aucune priorité de plantation n'y est nécessaire.
 
 ### C.3 – Âge moyen vs taux d'abattage
 
 ![Age vs abattage](figures/C3_age_vs_abattage.png)
 
-**Recommandations :**
-
-- **Quartier de Neuville** (score 66.7) : seulement 10.6 % de jeunes arbres et 19.2 % d'abattus — renouvellement urgent.
-- **Quartier du Centre-Ville** (score 62.2) : forte proportion d'abattages (26.8 %), espaces contraints mais besoin réel de replantation.
-- **Quartier de l'Europe** (score 57.4) : grand quartier peu doté en jeunes arbres, potentiel de verdissement important.
-- **Quartier du Vermandois** : déjà 70 % de jeunes arbres — pas de priorité immédiate.
-
 ---
 
 ## Synthèse générale
 
-| Partie | Modèle | Performance clé |
-|---|---|---|
-| A – Régression linéaire | lm (stepAIC) | R² = 0.745 / RMSE = 10.3 ans |
-| B – Régression logistique | glm binomial (stepAIC) | AUC = 0.716 / Accuracy = 92.9 % |
-| C – Zones de plantation | Analyse descriptive par quartier | Neuville et Centre-Ville prioritaires |
-
-**Variables les plus importantes pour prédire l'âge :** `tronc_diam` (r = 0.77), `fk_stadedev` (eta² = 0.54), `remarquable` (+30 ans).  
-**Profil d'arbre à risque d'abattage :** vieux, isolé, plusieurs diagnostics, non remarquable (OR vieux = 15.2).
+La **régression linéaire** (R² = 0.745, RMSE = 10.3 ans) montre que l'âge d'un arbre est avant tout expliqué par son diamètre de tronc et son stade de développement. La **régression logistique** (AUC = 0.716) identifie les arbres vieux, isolés et multi-diagnostiqués comme les plus à risque d'abattage. Enfin, l'analyse des zones confirme que les quartiers **Neuville** et **Centre-Ville** sont les priorités de plantation pour rééquilibrer le patrimoine arboré de Saint-Quentin.

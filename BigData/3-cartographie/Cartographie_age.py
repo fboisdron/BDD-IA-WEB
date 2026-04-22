@@ -19,10 +19,10 @@ df = df.dropna(subset=[lon_col, lat_col, stade_col])
 
 # === 4. Mapping des stades ===
 mapping = {
-    "Jeune": "Jeune",
-    "Adulte": "Adulte",
-    "Vieux": "Vieux",
-    "Senescent": "Senescent",
+    "jeune": "jeune",
+    "adulte": "adulte",
+    "vieux": "vieux",
+    "senescent": "senescent",
 }
 
 df["stade"] = df[stade_col].map(mapping)
@@ -37,10 +37,10 @@ gdf = gdf.to_crs(epsg=3857)
 
 # === 6. Couleurs ===
 colors = {
-    "Jeune": "green",
-    "Adulte": "blue",
-    "Vieux": "orange",
-    "Senescent": "red"
+    "jeune": "green",
+    "adulte": "blue",
+    "vieux": "orange",
+    "senescent": "red"
 }
 
 # =========================================================

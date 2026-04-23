@@ -97,23 +97,33 @@ def standardize_text_values(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def clean_target_column(df: pd.DataFrame) -> pd.DataFrame:
-    """Crée une cible binaire optionnelle à partir de fk_arb_etat."""
+    """Normalise les colonnes binaires utiles pour la suite du projet."""
     df = df.copy()
 
     if 'fk_arb_etat' in df.columns:
         df['fk_arb_etat'] = df['fk_arb_etat'].replace({
-            'SUPPRIMÉ': 'ABATTU',
-            'REMPLACÉ': 'ABATTU',
-            'Essouché': 'ABATTU',
-            'Non essouché': 'ABATTU',
+            'EN PLACE': 0,
+            'ENPLACE': 0,
+            'En place': 0,
+            'ABATTU': 1,
+            'SUPPRIMÉ': 1,
+            'REMPLACÉ': 1,
+            'Essouché': 1,
+            'Non essouché': 1,
         })
+        df['fk_arb_etat'] = pd.to_numeric(df['fk_arb_etat'], errors='coerce').fillna(0).astype('Int64')
 
-        # # Cible binaire pour la ML
-        # mapping = {
-        #     'EN PLACE': 0,
-        #     'ABATTU': 1,
-        # }
-        # df['cible_abattage'] = df['fk_arb_etat'].map(mapping)
+    if 'remarquable' in df.columns:
+        df['remarquable'] = df['remarquable'].replace({
+            'Oui': 1,
+            'OUI': 1,
+            'oui': 1,
+            'Non': 0,
+            'NON': 0,
+            'non': 0,
+            'N/A': 0,
+        })
+        df['remarquable'] = pd.to_numeric(df['remarquable'], errors='coerce').fillna(0).astype('Int64')
 
     return df
 
@@ -374,7 +384,7 @@ def main():
 
     # 6) Remplissement des NA sur variables qualitatives
     categorical_na_cols = [
-        'remarquable', 'feuillage', 'nomlatin', 'nomfrancais', 'villeca',
+        'feuillage', 'nomlatin', 'nomfrancais', 'villeca',
         'fk_nomtech', 'fk_revetement', 'fk_situation', 'fk_pied',
         'fk_stadedev', 'fk_port', 'fk_arb_etat',
         'clc_quartier', 'clc_secteur', 'id_arbre'

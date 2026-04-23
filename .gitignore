@@ -11,3 +11,12 @@ BigData/data/rapport_outliers.txt
 BigData/data/~$Patrimoine_Arboré_data_clean.xlsx
 BigData/4-etude-correlation/figures
 BigData/.venv
+BigData/5-etude-correlation/resultats/B6_arbres_a_controler_python.csv
+.gitignore
+BigData/5-etude-correlation/resultats/B6_scoring_abattage_python.csv
+BigData/5-etude-correlation/resultats/B6_top200_risque_abattage_python.csv
+BigData/5-etude-correlation/resultats/B6_arbres_a_inspecter_python.csv
+BigData/5-etude-correlation/figures/B4_roc_curve_python.png
+.gitignore
+BigData/5-etude-correlation/figures/B6_repartition_decisions.png
+BigData/5-etude-correlation/figures/B6_distribution_probabilites.png

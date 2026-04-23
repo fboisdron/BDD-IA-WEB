@@ -8,7 +8,9 @@ library(corrplot)
 
 INPUT_FILE  <- "../data/Patrimoine_Arboré_data_clean.csv"
 FIGURES_DIR <- "figures"
+RESULTS_DIR <- "resultats"
 dir.create(FIGURES_DIR, showWarnings = FALSE)
+dir.create(RESULTS_DIR, showWarnings = FALSE)
 
 save_fig <- function(name, width = 10, height = 7) {
   ggsave(file.path(FIGURES_DIR, name), width = width, height = height, dpi = 150)
@@ -183,24 +185,52 @@ cat("\n--- Modèle logistique (stepAIC) ---\n")
 print(summary(glm_step))
 
 # --- B.3 Évaluation sur le jeu de test ------------------------------
+compute_cls_metrics <- function(y_true_factor, y_prob, threshold) {
+  y_true <- as.integer(as.character(y_true_factor))
+  y_pred <- ifelse(y_prob >= threshold, 1, 0)
+
+  tp <- sum(y_pred == 1 & y_true == 1)
+  tn <- sum(y_pred == 0 & y_true == 0)
+  fp <- sum(y_pred == 1 & y_true == 0)
+  fn <- sum(y_pred == 0 & y_true == 1)
+
+  accuracy  <- (tp + tn) / (tp + tn + fp + fn)
+  precision <- ifelse((tp + fp) > 0, tp / (tp + fp), 0)
+  recall    <- ifelse((tp + fn) > 0, tp / (tp + fn), 0)
+  f1        <- ifelse((precision + recall) > 0, 2 * precision * recall / (precision + recall), 0)
+
+  list(
+    confusion = matrix(c(tn, fp, fn, tp), nrow = 2, byrow = TRUE,
+                       dimnames = list("Prédit" = c("0", "1"), "Réel" = c("0", "1"))),
+    accuracy = accuracy,
+    precision = precision,
+    recall = recall,
+    f1 = f1
+  )
+}
+
 prob_test <- predict(glm_step, newdata = test_data, type = "response")
-pred_test <- ifelse(prob_test > 0.5, 1, 0)
-
-cm <- table(Prédit = pred_test, Réel = test_data$abattu)
-cat("\nMatrice de confusion (seuil 0.5) :\n")
-print(cm)
-
-accuracy  <- sum(diag(cm)) / sum(cm)
-precision <- cm["1", "1"] / (cm["1", "1"] + cm["1", "0"])
-recall    <- cm["1", "1"] / (cm["1", "1"] + cm["0", "1"])
-f1        <- 2 * precision * recall / (precision + recall)
-cat(sprintf("Accuracy  : %.4f\nPrécision : %.4f\nRappel    : %.4f\nF1-score  : %.4f\n",
-            accuracy, precision, recall, f1))
-
-# --- B.4 Courbe ROC -------------------------------------------------
 roc_obj <- roc(as.numeric(as.character(test_data$abattu)), prob_test, quiet = TRUE)
 auc_val <- auc(roc_obj)
 cat(sprintf("AUC       : %.4f\n", auc_val))
+
+best_threshold <- as.numeric(coords(roc_obj, x = "best", best.method = "youden", ret = "threshold"))
+
+metrics_05 <- compute_cls_metrics(test_data$abattu, prob_test, 0.5)
+metrics_best <- compute_cls_metrics(test_data$abattu, prob_test, best_threshold)
+
+cat("\nMatrice de confusion (seuil 0.5) :\n")
+print(metrics_05$confusion)
+cat(sprintf("Accuracy  : %.4f\nPrécision : %.4f\nRappel    : %.4f\nF1-score  : %.4f\n",
+            metrics_05$accuracy, metrics_05$precision, metrics_05$recall, metrics_05$f1))
+
+cat(sprintf("\nSeuil optimal (Youden) : %.4f\n", best_threshold))
+cat("Matrice de confusion (seuil optimal) :\n")
+print(metrics_best$confusion)
+cat(sprintf("Accuracy  : %.4f\nPrécision : %.4f\nRappel    : %.4f\nF1-score  : %.4f\n",
+            metrics_best$accuracy, metrics_best$precision, metrics_best$recall, metrics_best$f1))
+
+# --- B.4 Courbe ROC -------------------------------------------------
 
 roc_df <- data.frame(
   spec = 1 - roc_obj$specificities,
@@ -237,6 +267,46 @@ ggplot(or_df, aes(x = reorder(variable, OR), y = OR)) +
        x = NULL, y = "Odds Ratio (échelle log)") +
   theme_minimal()
 save_fig("B5_odds_ratios.png", height = 7)
+
+# --- B.6 Scoring opérationnel : arbres prioritaires -----------------
+cat("\n--- B.6 Scoring des arbres à inspecter en priorité ---\n")
+
+model_vars <- all.vars(formula(glm_step))
+predictor_vars <- setdiff(model_vars, "abattu")
+
+base_cols <- c("id_arbre", "clc_quartier", "clc_secteur", "Latitude", "Longitude", "fk_arb_etat")
+available_base_cols <- intersect(base_cols, names(df))
+
+scoring_df <- df %>%
+  select(all_of(unique(c(available_base_cols, predictor_vars, "abattu")))) %>%
+  drop_na(all_of(predictor_vars))
+
+for (v in names(train_data)) {
+  if (v != "abattu" && v %in% names(scoring_df) && is.factor(train_data[[v]])) {
+    scoring_df[[v]] <- factor(scoring_df[[v]], levels = levels(train_data[[v]]))
+  }
+}
+
+scoring_df <- scoring_df %>% drop_na(all_of(predictor_vars))
+
+scoring_df <- scoring_df %>%
+  mutate(
+    prob_abattage = predict(glm_step, newdata = ., type = "response"),
+    decision = ifelse(prob_abattage >= best_threshold, "A_INSPECTER", "SURVEILLER")
+  ) %>%
+  arrange(desc(prob_abattage))
+
+arbres_prioritaires <- scoring_df %>% filter(decision == "A_INSPECTER")
+top_200_risque <- scoring_df %>% slice_head(n = min(200, n()))
+
+write.csv(scoring_df, file.path(RESULTS_DIR, "B6_scoring_abattage.csv"), row.names = FALSE)
+write.csv(arbres_prioritaires, file.path(RESULTS_DIR, "B6_arbres_a_inspecter.csv"), row.names = FALSE)
+write.csv(top_200_risque, file.path(RESULTS_DIR, "B6_top200_risque_abattage.csv"), row.names = FALSE)
+
+cat("  ->", file.path(RESULTS_DIR, "B6_scoring_abattage.csv"), "\n")
+cat("  ->", file.path(RESULTS_DIR, "B6_arbres_a_inspecter.csv"), "\n")
+cat("  ->", file.path(RESULTS_DIR, "B6_top200_risque_abattage.csv"), "\n")
+cat("Arbres classés A_INSPECTER :", nrow(arbres_prioritaires), "\n")
 
 # ============================================================
 # PARTIE C – ANALYSE DES ZONES DE PLANTATION

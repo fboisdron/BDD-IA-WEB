@@ -149,11 +149,8 @@ def plot_boxplots_qual_vs_target(df):
 
 QUAL_CHI2_PAIRS = [
     ("fk_stadedev", "fk_arb_etat"),
-    ("fk_stadedev", "fk_situation"),
-    ("fk_stadedev", "remarquable"),
-    ("feuillage", "remarquable"),
     ("fk_arb_etat", "fk_situation"),
-    ("fk_stadedev", "feuillage"),
+    ("fk_stadedev", "remarquable"),
 ]
 
 
@@ -180,13 +177,14 @@ def chi2_tests(df):
 # ---------------------------------------------------------------------------
 
 def plot_mosaics(df, chi2_results):
-    print("\n[5] Mosaic plots des paires qualitatives les plus significatives")
-    top_pairs = chi2_results.nsmallest(4, "p")[["var_A", "var_B"]].values.tolist()
+    print("\n[5] Mosaic plots des paires qualitatives sélectionnées")
+    selected_pairs = chi2_results[["var_A", "var_B"]].values.tolist()
+    n_pairs = len(selected_pairs)
+    fig, axes = plt.subplots(1, n_pairs, figsize=(6 * n_pairs, 5))
+    if n_pairs == 1:
+        axes = [axes]
 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    axes = axes.flatten()
-
-    for i, (col_a, col_b) in enumerate(top_pairs):
+    for i, (col_a, col_b) in enumerate(selected_pairs):
         sub = filter_na(df, [col_a, col_b])[[col_a, col_b]].dropna()
         ct = pd.crosstab(sub[col_a], sub[col_b])
         chi2, p, _, _ = stats.chi2_contingency(ct)
@@ -197,7 +195,7 @@ def plot_mosaics(df, chi2_results):
         axes[i].set_xlabel(col_b)
         axes[i].set_ylabel(col_a)
 
-    fig.suptitle("Mosaic plots – relations entre variables qualitatives", fontsize=13, y=1.01)
+    fig.suptitle("Mosaic plots – paires qualitatives sélectionnées", fontsize=13, y=1.01)
     fig.tight_layout()
     save(fig, "5_mosaic_plots.png")
 
@@ -208,15 +206,11 @@ def plot_mosaics(df, chi2_results):
 
 def plot_crosstab_heatmaps(df):
     print("\n[6] Heatmaps des tableaux croisés")
-    pairs = [
-        ("fk_stadedev", "fk_arb_etat"),
-        ("fk_stadedev", "remarquable"),
-        ("fk_stadedev", "fk_situation"),
-        ("feuillage", "remarquable"),
-    ]
-
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
-    axes = axes.flatten()
+    pairs = QUAL_CHI2_PAIRS
+    n_pairs = len(pairs)
+    fig, axes = plt.subplots(1, n_pairs, figsize=(6 * n_pairs, 5))
+    if n_pairs == 1:
+        axes = [axes]
 
     for i, (col_a, col_b) in enumerate(pairs):
         sub = filter_na(df, [col_a, col_b])[[col_a, col_b]].dropna()

@@ -314,33 +314,28 @@ cat("Arbres classés A_INSPECTER :", nrow(arbres_prioritaires), "\n")
 
 cat("\n========== C. ZONES DE PLANTATION ==========\n")
 
-# Indice de verdissement par quartier : arbres pour 1000 hab (approx.)
-# On calcule la part de jeunes arbres et la densité relative par quartier
 zone_df <- df %>%
-  filter(!is.na(clc_quartier)) %>%
+  filter(!is.na(clc_quartier), clc_quartier != "") %>%
   group_by(clc_quartier) %>%
   summarise(
-    total_arbres   = n(),
-    nb_jeunes      = sum(fk_stadedev == "jeune", na.rm = TRUE),
-    nb_adultes     = sum(fk_stadedev == "adulte", na.rm = TRUE),
-    nb_vieux       = sum(fk_stadedev %in% c("vieux", "senescent"), na.rm = TRUE),
-    nb_abattus     = sum(fk_arb_etat == "ABATTU", na.rm = TRUE),
-    pct_jeunes     = nb_jeunes / total_arbres * 100,
-    pct_abattus    = nb_abattus / total_arbres * 100,
-    age_moyen      = mean(age_estim, na.rm = TRUE),
+    total_arbres = n(),
+    nb_jeunes    = sum(fk_stadedev == "jeune",   na.rm = TRUE),
+    nb_adultes   = sum(fk_stadedev == "adulte",  na.rm = TRUE),
+    nb_vieux     = sum(fk_stadedev %in% c("vieux", "senescent"), na.rm = TRUE),
+    nb_abattus   = sum(fk_arb_etat == "ABATTU",  na.rm = TRUE),
+    pct_jeunes   = nb_jeunes  / total_arbres * 100,
+    pct_abattus  = nb_abattus / total_arbres * 100,
+    age_moyen    = mean(age_estim, na.rm = TRUE),
     .groups = "drop"
   ) %>%
-  mutate(
-    score_besoin = pct_abattus + (100 - pct_jeunes) / 2
-  ) %>%
-  arrange(desc(score_besoin))
+  arrange(total_arbres)
 
-cat("\nAnalyse par quartier (trié par besoin de plantation) :\n")
+cat("\nAnalyse descriptive par quartier :\n")
 print(zone_df, n = Inf)
 
 # --- C.1 Heatmap des stades par quartier ----------------------------
 stade_long <- df %>%
-  filter(!is.na(clc_quartier), !is.na(fk_stadedev)) %>%
+  filter(!is.na(clc_quartier), clc_quartier != "", !is.na(fk_stadedev)) %>%
   count(clc_quartier, fk_stadedev) %>%
   group_by(clc_quartier) %>%
   mutate(pct = n / sum(n) * 100) %>%
@@ -356,17 +351,19 @@ ggplot(stade_long, aes(x = fk_stadedev, y = clc_quartier, fill = pct)) +
   theme(axis.text.y = element_text(size = 8))
 save_fig("C1_stades_par_quartier.png", height = 7)
 
-# --- C.2 Barres : score de besoin de plantation ---------------------
-ggplot(zone_df, aes(x = reorder(clc_quartier, score_besoin), y = score_besoin,
-                    fill = score_besoin)) +
+# --- C.2 Densité arborée par quartier (nb arbres, trié) -------------
+ggplot(zone_df, aes(x = reorder(clc_quartier, total_arbres), y = total_arbres,
+                    fill = total_arbres)) +
   geom_col() +
+  geom_hline(yintercept = mean(zone_df$total_arbres), linetype = "dashed",
+             color = "red", linewidth = 0.8) +
   scale_fill_gradient(low = "#b7e4c7", high = "#1b4332") +
   coord_flip() +
-  labs(title = "Score de besoin de plantation par quartier",
-       subtitle = "Score = % d'abattus + (100 - % jeunes) / 2",
-       x = NULL, y = "Score (plus élevé = priorité de plantation)", fill = "Score") +
+  labs(title = "Nombre d'arbres par quartier",
+       subtitle = "Ligne rouge = moyenne",
+       x = NULL, y = "Nombre d'arbres", fill = "Effectif") +
   theme_minimal()
-save_fig("C2_score_plantation.png", height = 6)
+save_fig("C2_densite_quartier.png", height = 6)
 
 # --- C.3 Scatter : âge moyen vs % abattus ---------------------------
 p_c3 <- ggplot(zone_df, aes(x = age_moyen, y = pct_abattus, label = clc_quartier)) +

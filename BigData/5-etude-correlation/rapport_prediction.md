@@ -93,17 +93,19 @@ Le facteur le plus discriminant est le **stade vieux** (OR = 15.2) : les arbres 
 
 ## Partie C – Zones prioritaires de plantation
 
-L'objectif est d'identifier les quartiers où la ville devrait concentrer ses nouvelles plantations pour harmoniser le développement arboré. Un score de besoin est calculé comme suit : `score = % abattus + (100 − % jeunes) / 2`. Un score élevé signale un quartier avec beaucoup d'abattages et peu de renouvellement.
+L'objectif est d'identifier les quartiers où la ville devrait concentrer ses nouvelles plantations pour harmoniser le développement arboré. L'approche est purement descriptive : on compare les quartiers sur trois indicateurs — nombre total d'arbres, proportion de jeunes arbres et taux d'abattage.
 
 ### C.1 – Répartition des stades par quartier
 
 ![Stades par quartier](figures/C1_stades_par_quartier.png)
 
-### C.2 – Score de besoin de plantation
+### C.2 – Densité arborée par quartier
 
-![Score plantation](figures/C2_score_plantation.png)
+![Densité par quartier](figures/C2_densite_quartier.png)
 
-Le **Quartier de Neuville** obtient le score le plus élevé (66.7) avec seulement 10.6 % de jeunes arbres et 19.2 % d'abattus : c'est la zone la plus urgente. Le **Centre-Ville** suit (62.2) avec un taux d'abattage de 26.8 %, le plus fort de la ville. Le **Quartier de l'Europe** (57.4) est un grand quartier peu renouvelé (13 % de jeunes) offrant un fort potentiel de verdissement. À l'opposé, le **Quartier du Vermandois** affiche 70 % de jeunes arbres et 1.1 % d'abattus : aucune priorité de plantation n'y est nécessaire.
+La ligne rouge représente la moyenne (≈ 960 arbres par quartier). Les quartiers **Saint-Martin - Oëstres** (2 009), **Remicourt** (1 765) et **faubourg d'Isle** (1 715) sont nettement au-dessus. À l'opposé, **ROUVROY** (6 arbres), **HARLY** (156) et **Quartier de Neuville** (302) sont très en dessous — ce sont des zones où le patrimoine est peu développé.
+
+En croisant avec la heatmap des stades, les zones prioritaires pour de nouvelles plantations sont : le **Quartier de Neuville** (302 arbres, 10.6 % de jeunes, 19.2 % d'abattus) où le patrimoine se dégrade sans renouvellement ; le **Centre-Ville** avec le taux d'abattage le plus élevé de la ville (26.8 %) et seulement 29 % de jeunes arbres ; et le **Quartier de l'Europe** (1 428 arbres, 13 % de jeunes, 13.9 % d'abattus) dont le renouvellement est insuffisant au regard de sa taille. À l'opposé, le **Quartier du Vermandois** (70 % de jeunes, 1.1 % d'abattus) n'a pas besoin d'intervention.
 
 ### C.3 – Âge moyen vs taux d'abattage
 

@@ -58,17 +58,14 @@ Le **stade de développement** (`fk_stadedev`) est de loin la variable qualitati
 
 | Variable A | Variable B | chi² | p-value | V de Cramér |
 |---|---|---|---|---|
-| fk_stadedev | remarquable | 2769.34 | ≈ 0 | **0.497** |
 | fk_stadedev | fk_arb_etat | 815.34 | 2.0e-176 | **0.270** |
-| fk_stadedev | fk_situation | 295.74 | 6.7e-61 | 0.115 |
-| fk_stadedev | feuillage | 173.78 | 1.9e-37 | 0.125 |
 | fk_arb_etat | fk_situation | 9.24 | 9.9e-3 | 0.028 |
-| feuillage | remarquable | 0.31 | 0.58 | 0.005 |
+| fk_stadedev | remarquable | 2769.34 | ≈ 0 | **0.497** |
 
 **Interprétation :**
-- `fk_stadedev × remarquable` : V = 0.497 — association très forte. Les arbres remarquables sont massivement dans les stades vieux/sénescent.
-- `fk_stadedev × fk_arb_etat` : V = 0.270 — les arbres abattus sont surreprésentés dans les stades jeune et sénescent (fragilité).
-- `feuillage × remarquable` : p = 0.58 — **pas de lien** entre le type de feuillage (feuillu/conifère) et le caractère remarquable.
+- `fk_stadedev × remarquable` : V = 0.497 — association très forte. Les arbres remarquables sont massivement dans les stades sénescent (38/53) et adulte, jamais jeunes (3/4620).
+- `fk_stadedev × fk_arb_etat` : V = 0.270 — association modérée mais très significative. Les arbres abattus sont surreprésentés dans le stade vieux (59/68 arbres vieux sont abattus) et sénescent.
+- `fk_arb_etat × fk_situation` : V = 0.028 — lien très faible entre l'état de l'arbre et sa situation (alignement, groupe, isolé).
 
 ---
 

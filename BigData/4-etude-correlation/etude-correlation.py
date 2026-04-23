@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import scipy.stats as stats
 import seaborn as sns
+import statsmodels.api as sm
 from statsmodels.graphics.mosaicplot import mosaic
 
 warnings.filterwarnings("ignore")
@@ -263,6 +264,66 @@ def plot_eta_squared(df):
 
 
 # ---------------------------------------------------------------------------
+# 8. Régression linéaire multiple : tronc_diam + haut_tronc → age_estim
+# ---------------------------------------------------------------------------
+
+def regression_morphologique(df):
+    print("\n[8] Régression linéaire multiple : tronc_diam + haut_tronc → age_estim")
+    sub = df[["tronc_diam", "haut_tronc", TARGET]].dropna()
+
+    X = sm.add_constant(sub[["tronc_diam", "haut_tronc"]])
+    model = sm.OLS(sub[TARGET], X).fit()
+    print(model.summary())
+
+    r2    = model.rsquared
+    rmse  = np.sqrt(model.mse_resid)
+    coef  = model.params
+    pvals = model.pvalues
+    print(f"\nR²   = {r2:.4f}")
+    print(f"RMSE = {rmse:.2f} ans")
+    print(f"Coef tronc_diam : {coef['tronc_diam']:+.3f}  (p={pvals['tronc_diam']:.2e})")
+    print(f"Coef haut_tronc : {coef['haut_tronc']:+.3f}  (p={pvals['haut_tronc']:.2e})")
+
+    pred = model.fittedvalues
+
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+
+    # --- Panneau 1 : tronc_diam vs age_estim avec droite de régression ---
+    for ax, var, label, color in [
+        (axes[0], "tronc_diam", "Diamètre du tronc (m)", "#2196F3"),
+        (axes[1], "haut_tronc", "Hauteur du tronc (m)",  "#4CAF50"),
+    ]:
+        ax.scatter(sub[var], sub[TARGET], alpha=0.15, s=6, color=color)
+        x_line = np.linspace(sub[var].min(), sub[var].max(), 200)
+        # droite marginale (régression simple pour la lisibilité du graphe)
+        r_simple, _ = stats.pearsonr(sub[var], sub[TARGET])
+        m, b = np.polyfit(sub[var], sub[TARGET], 1)
+        ax.plot(x_line, m * x_line + b, color="crimson", linewidth=2)
+        ax.set_xlabel(label, fontsize=11)
+        ax.set_ylabel("Âge estimé (ans)", fontsize=11)
+        ax.set_title(f"r = {r_simple:+.3f}", fontsize=12, fontweight="bold")
+        ax.annotate(f"y = {m:.1f}x + {b:.1f}", xy=(0.05, 0.92),
+                    xycoords="axes fraction", fontsize=9, color="crimson")
+
+    # --- Panneau 3 : observé vs prédit (modèle multiple) ---
+    axes[2].scatter(sub[TARGET], pred, alpha=0.2, s=6, color="#9C27B0")
+    lim = [sub[TARGET].min(), sub[TARGET].max()]
+    axes[2].plot(lim, lim, color="crimson", linestyle="--", linewidth=1.8, label="Prédiction parfaite")
+    axes[2].set_xlabel("Âge observé (ans)", fontsize=11)
+    axes[2].set_ylabel("Âge prédit (ans)", fontsize=11)
+    axes[2].set_title(f"Modèle multiple\nR² = {r2:.3f}  —  RMSE = {rmse:.1f} ans",
+                      fontsize=12, fontweight="bold")
+    axes[2].legend(fontsize=9)
+
+    fig.suptitle("Régression linéaire multiple : tronc_diam + haut_tronc → age_estim",
+                 fontsize=13, fontweight="bold", y=1.02)
+    fig.tight_layout()
+    save(fig, "8_regression_morphologique.png")
+
+    return r2, rmse
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -277,6 +338,7 @@ def main():
     plot_mosaics(df, chi2_results)
     plot_crosstab_heatmaps(df)
     plot_eta_squared(df)
+    r2_morph, rmse_morph = regression_morphologique(df)
 
     print("\n=== Résumé des corrélations avec age_estim ===")
     print("Variables numériques (Pearson r) :")

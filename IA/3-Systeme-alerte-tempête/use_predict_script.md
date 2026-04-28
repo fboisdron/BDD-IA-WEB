@@ -4,20 +4,38 @@ Ce dossier contient un script Python qui permet de prédire si un arbre est susc
 
 Le script à exécuter est [predire_alerte.py](predire_alerte.py). Par défaut, il charge le modèle [random_forest_alerte.pkl](random_forest_alerte.pkl), présent dans le même dossier.
 
-## Prérequis
 
-Installez les dépendances du projet avec :
+## Créer et activer un environnement virtuel (venv)
+
+Sur Linux, depuis le dossier `IA/3-Systeme-alerte-tempête` :
+
+```bash
+# créer l'environnement
+python3 -m venv .venv
+
+# activer
+source .venv/bin/activate
+
+# mettre à jour pip
+python -m pip install --upgrade pip
+```
+
+Pour sortir de l'environnement virtuel, utilisez `deactivate`.
+
+## Installer les dépendances
+
+Une fois le `venv` activé, installez les paquets listés dans `requirements.txt` :
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Le script attend Python 3 et les bibliothèques `pandas`, `joblib` et `scikit-learn`.
 
 ## Lancer une prédiction
 
 Placez-vous dans le dossier `IA/3-Systeme-alerte-tempête`, puis exécutez le script avec toutes les variables d'entrée obligatoires :
 
+Pas de risque : 
 ```bash
 python predire_alerte.py \
 	--haut_tot 12.5 \
@@ -30,6 +48,21 @@ python predire_alerte.py \
 	--fk_situation alignement \
 	--fk_revetement non \
 	--feuillage feuillu
+```
+
+A risque : 
+```bash
+python predire_alerte.py \
+	--haut_tot 60 \
+	--haut_tronc 30 \
+	--tronc_diam 0.1 \
+	--age_estim 60 \
+	--fk_stadedev "vieux" \
+	--fk_port "étêté" \
+	--fk_pied "fosse arbre" \
+	--fk_situation "isolé" \
+	--fk_revetement non \
+	--feuillage "feuillu"
 ```
 
 Le script affiche :

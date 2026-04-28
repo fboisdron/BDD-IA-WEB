@@ -1,0 +1,76 @@
+/* Tailwind CSS with Material Design 3 Tokens */
+@import url("https://fonts.googleapis.com/css2?family=Assistant:wght@200;300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Material Symbols Configuration */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+}
+
+.material-symbols-outlined[style*="FILL"] {
+    font-variation-settings: inherit;
+}
+
+/* Custom Shadow Utilities */
+.signature-shadow {
+    box-shadow: 0 10px 15px -3px rgba(27, 67, 50, 0.4);
+}
+
+.custom-shadow {
+    box-shadow: 0 10px 15px 5px rgba(27, 67, 50, 0.4);
+}
+
+/* Inner Focus Ring for Inputs */
+.inner-focus:focus {
+    outline: none;
+    border-color: #012d1d;
+    box-shadow: 0 0 0 2px rgba(1, 45, 29, 0.1);
+}
+
+/* Typography Defaults */
+body {
+    @apply font-body-md text-on-background;
+}
+
+h1 {
+    @apply font-h1 text-h1;
+}
+
+h2 {
+    @apply font-h2 text-h2;
+}
+
+h3 {
+    @apply font-h3 text-h3;
+}
+
+/* Smooth Transitions */
+@layer components {
+    .btn-base {
+        @apply transition-all duration-200 active:scale-95;
+    }
+
+    .card-base {
+        @apply rounded-xl p-stack-lg signature-shadow border border-secondary-fixed;
+    }
+
+    .input-base {
+        @apply bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all text-on-surface;
+    }
+
+    .section-header {
+        @apply flex items-center gap-stack-sm mb-stack-md;
+    }
+}
+
+/* Dark Mode Utilities */
+@layer utilities {
+    .dark\:border-emerald-900 {
+        @apply dark:border-emerald-900;
+    }
+}

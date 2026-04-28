@@ -1,8 +1,26 @@
 # BDD-IA-WEB
 
-## Utiliser le script `nettoyage.py`
+Le dépôt contient désormais deux couches complémentaires :
 
-Le script de nettoyage se trouve dans `BigData/data/nettoyage.py`.
+- la chaîne BigData/IA qui produit et exploite le CSV clean,
+- une base d’application web dans `webapp/` pour Saint-Quentin.
+
+## Application web
+
+L’application PHP/AJAX se trouve dans [webapp/](webapp).
+
+Elle fournit :
+
+- un header et un footer communs,
+- une page d’accueil,
+- une page d’ajout d’arbres,
+- une page de cartes,
+- une page de formulaires pour les besoins clients,
+- un schéma PostgreSQL et un script d’import du CSV clean.
+
+## Préparation BigData
+
+Pour le nettoyage des données, le script principal est [BigData/1-nettoyage/nettoyage.py](BigData/1-nettoyage/nettoyage.py).
 
 ### Prérequis
 
@@ -18,8 +36,6 @@ cd BigData
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-
-Après activation, le terminal doit afficher `(.venv)` au début de la ligne.
 
 ### 2) Installer les dépendances
 
@@ -46,8 +62,6 @@ Après exécution, les fichiers suivants sont générés dans `BigData/data` :
 - `rapport_nettoyage.txt`
 
 ### 5) Désactiver le venv
-
-Quand vous avez terminé :
 
 ```bash
 deactivate

@@ -220,19 +220,45 @@
         const caption = document.querySelector('[data-map-caption]');
         const title = document.querySelector('[data-map-title]');
         const countEl = document.querySelector('[data-map-count]');
+        const legendEl = document.querySelector('[data-map-legend]');
         const tabs = document.querySelectorAll('[data-map-tab]');
         let layerGroup = L.layerGroup().addTo(map);
+
+        const legends = {
+            age: [
+                { color: '#2f7d32', label: 'Jeune (< 40 ans)' },
+                { color: '#c97d2d', label: 'Mature (40–80 ans)' },
+                { color: '#8b1e3f', label: 'Ancien (> 80 ans)' },
+            ],
+            cluster: [
+                { color: '#3caea3', label: 'Petit gabarit (< 0,4 m)' },
+                { color: '#20639b', label: 'Gabarit moyen (0,4–0,8 m)' },
+                { color: '#173f5f', label: 'Grand gabarit (> 0,8 m)' },
+            ],
+        };
+
+        const updateLegend = (mode) => {
+            if (!legendEl) return;
+            const items = legends[mode] ?? [];
+            legendEl.innerHTML = items.map((item, i) => `
+                <div class="flex items-center gap-2 ${i < items.length - 1 ? 'mb-2 pb-2 border-b border-outline-variant' : ''}">
+                    <span class="w-3 h-3 rounded-full flex-shrink-0" style="background:${item.color}"></span>
+                    <span class="text-label-sm text-primary font-semibold">${item.label}</span>
+                </div>
+            `).join('');
+        };
 
         const loadLayer = async (mode) => {
             layerGroup.clearLayers();
             if (caption && title) {
                 title.textContent = mode === 'age' ? 'Carte âge' : mode === 'cluster' ? 'Carte gabarit' : 'Carte vigilance';
                 caption.textContent = mode === 'age'
-                    ? 'Les points sont colorés selon les classes d’âge estimé.'
+                    ? "Les points sont colorés selon les classes d'âge estimé."
                     : mode === 'cluster'
-                        ? 'Les points sont colorés selon le gabarit des arbres.'
-                        : 'Les points sont colorés selon la vigilance et l’intérêt patrimonial.';
+                        ? "Les points sont colorés selon le gabarit des arbres."
+                        : "Les points sont colorés selon la vigilance et l'intérêt patrimonial.";
             }
+            updateLegend(mode);
 
             const data = await json(await fetch(`${apiUrl}?action=map&mode=${encodeURIComponent(mode)}`));
             if (countEl) countEl.textContent = formatNumber(data.points.length);

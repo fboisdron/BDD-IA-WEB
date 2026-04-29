@@ -22,7 +22,7 @@ class PredictionController
     {
         return [
             'view' => 'predictions/index',
-            'data' => [],
+            'data' => ['currentPage' => 'predictions'],
         ];
     }
 

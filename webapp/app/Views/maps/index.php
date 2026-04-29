@@ -33,16 +33,7 @@
 
                 <!-- Map Overlay Controls -->
                 <div class="absolute top-4 left-4 flex flex-col gap-2 z-[1001]">
-                    <div class="bg-white p-3 rounded-lg shadow-md border border-outline-variant">
-                        <div class="flex items-center gap-2 mb-2 pb-2 border-b border-outline-variant">
-                            <span class="w-3 h-3 rounded-full bg-secondary"></span>
-                            <span class="text-label-sm text-primary font-semibold">Arbre sain</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-error"></span>
-                            <span class="text-label-sm text-primary font-semibold">Nécessite surveillance</span>
-                        </div>
-                    </div>
+                    <div class="bg-white p-3 rounded-lg shadow-md border border-outline-variant" data-map-legend></div>
                 </div>
 
                 <!-- Zoom Controls -->

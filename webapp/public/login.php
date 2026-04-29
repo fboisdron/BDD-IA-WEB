@@ -6,7 +6,7 @@ require_once __DIR__ . '/_init.php';
 
 // Already logged in → redirect
 if (isset($_SESSION['user'])) {
-    header('Location: index.php');
+    header('Location: /');
     exit;
 }
 
@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $authRepository->verify($username, $password);
             session_regenerate_id(true);
             $_SESSION['user'] = ['id' => $user['id'], 'username' => $user['username'], 'role' => $user['role']];
-            header('Location: index.php');
+            header('Location: /');
             exit;
         }
     } else {

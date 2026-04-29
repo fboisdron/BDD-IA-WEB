@@ -65,7 +65,10 @@ while (($row = fgetcsv($handle)) !== false) {
             $value = null;
         }
 
-        if (in_array($column, ['id_arbre', 'fk_arb_etat', 'fk_prec_estim', 'clc_nbr_diag', 'remarquable'], true)) {
+        if ($column === 'remarquable') {
+            $intVal = ($value === 'Oui' || $value === '1') ? 1 : 0;
+            $stmt->bindValue(':' . $column, $intVal, PDO::PARAM_INT);
+        } elseif (in_array($column, ['id_arbre', 'fk_arb_etat', 'fk_prec_estim', 'clc_nbr_diag'], true)) {
             $stmt->bindValue(':' . $column, $value === null ? null : (int) $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         } elseif (in_array($column, ['haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim', 'longitude', 'latitude'], true)) {
             $stmt->bindValue(':' . $column, $value === null ? null : (float) $value, $value === null ? PDO::PARAM_NULL : PDO::PARAM_STR);

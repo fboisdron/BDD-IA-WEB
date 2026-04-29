@@ -23,6 +23,7 @@ class MapController
         return [
             'view' => 'maps/index',
             'data' => [
+                'currentPage' => 'cartes',
                 'modes' => ['age', 'cluster', 'alert'],
                 'defaultMode' => 'age',
             ],

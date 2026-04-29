@@ -37,8 +37,8 @@
                 <span class="text-secondary font-label-sm tracking-widest uppercase mb-unit block">Analyse en temps réel</span>
                 <h2 class="font-h2 text-h2 text-primary">Inventaire de la forêt urbaine</h2>
             </div>
-            <a href="/maps" class="text-secondary font-label-sm flex items-center gap-1 border-b border-secondary pb-1 hover:text-primary transition-colors">
-                Voir le tableau de bord <span class="material-symbols-outlined">arrow_forward</span>
+            <a href="arbres.php" class="text-secondary font-label-sm flex items-center gap-1 border-b border-secondary pb-1 hover:text-primary transition-colors">
+                Voir la liste des arbres <span class="material-symbols-outlined">arrow_forward</span>
             </a>
         </div>
 
@@ -65,10 +65,6 @@
                             <?= number_format($summary['total'] ?? 0) ?>
                         </div>
                         <div class="text-on-primary-container font-body-md mb-stack-md">Arbres patrimoniaux enregistrés</div>
-                        <div class="h-4 bg-white/25 rounded-full overflow-hidden">
-                            <div class="h-full bg-secondary-fixed w-3/4 rounded-full"></div>
-                        </div>
-                        <p class="text-label-sm text-on-primary-container mt-2 italic">Objectif: 1 600 d'ici 2025</p>
                     </div>
                 </div>
             </div>
@@ -106,7 +102,7 @@
                     <span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">health_and_safety</span>
 
                     <div>
-                        <div class="text-h3 font-h3 text-secondary-fixed">
+                        <div class="text-h3 font-h3 text-secondary-fixed" data-summary="remarkable">
                             <?= number_format($summary['remarkable'] ?? 0) ?>
                         </div>
                         <div class="text-label-sm text-on-primary-container">Arbres remarquables</div>
@@ -128,7 +124,7 @@
                     <span class="material-symbols-outlined text-secondary-fixed" style="font-variation-settings: 'FILL' 1;">eco</span>
 
                     <div>
-                        <div class="text-h3 font-h3 text-secondary-fixed">
+                        <div class="text-h3 font-h3 text-secondary-fixed" data-summary="avg_age">
                             <?= number_format((float)($summary['avg_age'] ?? 0), 1) ?>
                         </div>
                         <div class="text-label-sm text-on-primary-container">Âge moyen estimé</div>

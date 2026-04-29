@@ -35,7 +35,7 @@ if (session_status() === PHP_SESSION_NONE) {
 // Auth guard
 if (!isset($_SESSION['user'])) {
     $uri = $_SERVER['REQUEST_URI'] ?? '';
-    header('Location: /public/login.php?redirect=' . urlencode($uri));
+    header('Location: /login.php?redirect=' . urlencode($uri));
     exit;
 }
 

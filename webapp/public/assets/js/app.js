@@ -323,6 +323,9 @@
 
         const zoomControl = L.control.zoom({ position: 'topright' });
         zoomControl.addTo(map);
+        zoomControl.getContainer().querySelectorAll('a').forEach(a => {
+            a.addEventListener('click', e => e.preventDefault());
+        });
     };
 
     document.addEventListener('DOMContentLoaded', () => {

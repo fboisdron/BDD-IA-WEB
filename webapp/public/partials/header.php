@@ -122,7 +122,7 @@ $currentPage = $currentPage ?? 'home';
 </head>
 <body class="bg-background text-on-background font-body-md min-h-screen flex flex-col">
 <!-- TopAppBar -->
-<header class="bg-white dark:bg-slate-900 docked full-width top-0 sticky z-50 border-b-2 border-emerald-100 dark:border-emerald-800 shadow-[0_10px_15px_-3px_rgba(6,78,59,0.1)]">
+<header class="bg-white dark:bg-slate-900 docked full-width top-0 sticky border-b-2 border-emerald-100 dark:border-emerald-800 shadow-[0_10px_15px_-3px_rgba(6,78,59,0.1)]" style="z-index: 10001;">
     <div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
         <div class="text-xl font-black tracking-tight text-emerald-800 dark:text-emerald-100">
             Saint-Quentin Heritage Trees

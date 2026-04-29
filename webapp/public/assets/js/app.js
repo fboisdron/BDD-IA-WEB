@@ -128,6 +128,11 @@
             }
             
             form.addEventListener('submit', async (event) => {
+                const nomlatinInput = form.querySelector('input[name="nomlatin"]');
+                const fkNomtechInput = form.querySelector('input[name="fk_nomtech"]');
+                if (nomlatinInput && fkNomtechInput) {
+                    fkNomtechInput.value = nomlatinInput.value;
+                }
                 event.preventDefault();
                 // Use HTML5 constraint validation to prevent empty/invalid inputs
                 if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
@@ -265,10 +270,66 @@
         await loadLayer(document.querySelector('[data-map-tab].is-active')?.getAttribute('data-map-tab') || 'age');
     };
 
+    const initGeoMap = () => {
+        const mapContainer = document.querySelector('[data-geo-map]');
+        if (!mapContainer || typeof L === 'undefined') {
+            return;
+        }
+
+        const latitudeInput = document.querySelector('input[name="latitude"]');
+        const longitudeInput = document.querySelector('input[name="longitude"]');
+
+        const defaultLat = 49.8489;
+        const defaultLng = 3.2877;
+        const initialLat = Number.parseFloat(latitudeInput?.value || '');
+        const initialLng = Number.parseFloat(longitudeInput?.value || '');
+        const hasInitialPoint = Number.isFinite(initialLat) && Number.isFinite(initialLng);
+        const startLat = hasInitialPoint ? initialLat : defaultLat;
+        const startLng = hasInitialPoint ? initialLng : defaultLng;
+
+        const map = L.map(mapContainer, {
+            zoomControl: false,
+            scrollWheelZoom: false,
+        }).setView([startLat, startLng], hasInitialPoint ? 16 : 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors',
+        }).addTo(map);
+
+        const marker = L.marker([startLat, startLng], { draggable: true }).addTo(map);
+
+        const syncInputs = (lat, lng) => {
+            if (latitudeInput) {
+                latitudeInput.value = Number(lat).toFixed(6);
+            }
+            if (longitudeInput) {
+                longitudeInput.value = Number(lng).toFixed(6);
+            }
+        };
+
+        syncInputs(startLat, startLng);
+
+        map.on('click', (event) => {
+            const { lat, lng } = event.latlng;
+            marker.setLatLng([lat, lng]);
+            syncInputs(lat, lng);
+        });
+
+        marker.on('dragend', () => {
+            const position = marker.getLatLng();
+            syncInputs(position.lat, position.lng);
+        });
+
+        const zoomControl = L.control.zoom({ position: 'topright' });
+        zoomControl.addTo(map);
+    };
+
     document.addEventListener('DOMContentLoaded', () => {
         fillSummary();
         fillTreesTable();
         bindForms();
         initMap();
+        initGeoMap();
     });
 })();

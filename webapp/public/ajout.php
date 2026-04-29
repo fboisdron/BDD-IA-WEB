@@ -132,13 +132,6 @@ require_once __DIR__ . '/partials/header.php';
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-stack-md">
                     <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">État</label>
-                        <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all text-on-surface" name="fk_arb_etat">
-                            <option value="0">Bon</option>
-                            <option value="1">À surveiller</option>
-                        </select>
-                    </div>
-                    <div>
                         <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Pied</label>
                         <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_pied">
                             <option value="Bac de plantation">Bac de plantation</option>
@@ -170,13 +163,11 @@ require_once __DIR__ . '/partials/header.php';
                         </select>
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Précision âge</label>
-                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_prec_estim" type="number" placeholder="1">
-                    </div>
-                    <div>
                         <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Nb diagnostics</label>
                         <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="clc_nbr_diag" type="number" step="1" value="0" placeholder="0">
                     </div>
+                    <input type="hidden" name="fk_prec_estim" value="0">
+                    <input type="hidden" name="fk_nomtech">
                 </div>
             </section>
         </div>
@@ -190,9 +181,7 @@ require_once __DIR__ . '/partials/header.php';
                 </div>
                 
                 <div class="flex-grow rounded-lg overflow-hidden border border-outline-variant mb-stack-md min-h-[300px] relative bg-surface-container-high">
-                    <div class="w-full h-full bg-gradient-to-br from-primary/10 to-secondary/10 flex items-center justify-center">
-                        <span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-20">location_on</span>
-                    </div>
+                    <div class="w-full h-full" data-geo-map></div>
                 </div>
 
                 <div class="grid grid-cols-2 gap-stack-md mb-stack-lg">
@@ -208,12 +197,7 @@ require_once __DIR__ . '/partials/header.php';
 
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Ville</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="villeca" placeholder="Saint-Quentin">
-                </div>
-
-                <div class="mt-stack-lg pt-stack-lg border-t border-outline-variant">
-                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Nom technique (classification)</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_nomtech" placeholder="Classification technique">
+                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="villeca" placeholder="Saint-Quentin" value="Saint-Quentin">
                 </div>
 
                 <button class="w-full bg-primary-container text-on-primary py-4 rounded-lg font-h3 flex items-center justify-center gap-2 signature-shadow hover:bg-secondary transition-all active:scale-95 mt-auto" type="submit">

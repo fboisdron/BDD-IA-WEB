@@ -125,7 +125,7 @@ $currentPage = $currentPage ?? 'home';
 <header class="bg-white dark:bg-slate-900 docked full-width top-0 sticky border-b-2 border-emerald-100 dark:border-emerald-800 shadow-[0_10px_15px_-3px_rgba(6,78,59,0.1)]" style="z-index: 10001;">
     <div class="flex justify-between items-center w-full px-8 py-4 max-w-[1280px] mx-auto">
         <div class="text-xl font-black tracking-tight text-emerald-800 dark:text-emerald-100">
-            Saint-Quentin Heritage Trees
+            Saint-Quentin
         </div>
         <nav class="hidden md:flex items-center gap-8 font-sans antialiased text-sm font-medium">
             <a class="<?= $currentPage === 'home' ? 'text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-700 dark:border-emerald-400 pb-1 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 active:scale-95' ?>" href="index.php">Accueil</a>

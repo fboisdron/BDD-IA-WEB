@@ -35,7 +35,7 @@ require_once __DIR__ . '/partials/header.php';
 const spec = {
     openapi: '3.0.3',
     info: {
-        title: 'Saint-Quentin Heritage Trees API',
+        title: 'Saint-Quentin API',
         version: '1.0.0',
         description: 'API REST du patrimoine arboré de Saint-Quentin.\n\n> **Note** : toutes les opérations transitent par `api.php`. Le paramètre `action` est fixé par opération et indiqué ci-dessous. Le "Try it out" fonctionne depuis le même serveur.',
     },

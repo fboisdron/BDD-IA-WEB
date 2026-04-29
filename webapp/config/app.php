@@ -13,7 +13,8 @@ define('DB_USER', getenv('PGUSER') ?: 'postgres');
 define('DB_PASSWORD', getenv('PGPASSWORD') ?: 'postgres');
 
 define('CSV_CLEAN_FILE', dirname(APP_ROOT) . '/BigData/data/Patrimoine_Arboré_data_clean.csv');
-define('PYTHON_BIN', getenv('PYTHON_BIN') ?: 'python3');
+$defaultPythonBin = dirname(APP_ROOT) . '/BigData/nettoyage/.venv/bin/python';
+define('PYTHON_BIN', getenv('PYTHON_BIN') ?: (is_file($defaultPythonBin) ? $defaultPythonBin : 'python3'));
 
 define('TREE_INSERT_COLUMNS', [
     'clc_quartier', 'clc_secteur', 'id_arbre', 'haut_tot', 'haut_tronc', 'tronc_diam',

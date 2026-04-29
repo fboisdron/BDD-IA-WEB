@@ -75,7 +75,7 @@
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="font-body-md"><?= number_format((float)($tree['haut_tot'] ?? 0), 1) ?>m</div>
-                                    <div class="text-label-sm text-on-surface-variant">Ø <?= number_format((float)($tree['tronc_diam'] ?? 0), 1) ?>cm</div>
+                                    <div class="text-label-sm text-on-surface-variant">Ø <?= number_format((float)($tree['tronc_diam'] ?? 0), 2) ?>m</div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="font-body-md"><?= number_format((float)($tree['age_estim'] ?? 0), 0) ?> ans</div>

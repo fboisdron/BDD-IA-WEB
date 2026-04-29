@@ -5,10 +5,12 @@ declare(strict_types=1);
 require_once __DIR__ . '/_init.php';
 
 if (!$repository) {
-    json_response(['ok' => false, 'error' => 'Connexion PostgreSQL indisponible.'], 500);
+    json_response(['ok' => false, 'error' => 'Connexion PostgreSQL indisponible.', 'raw_output' => null], 500);
 }
 
 $action = request_value('action', 'summary');
+
+$lastRawOutput = null;
 
 try {
     if ($action === 'summary') {
@@ -60,14 +62,28 @@ try {
     }
 
     if ($action === 'predict-age') {
+        // Validate inputs
+        $haut_tot = to_nullable_float(request_value('haut_tot'));
+        $haut_tronc = to_nullable_float(request_value('haut_tronc'));
+        $tronc_diam = to_nullable_float(request_value('tronc_diam'));
+
+        if ($haut_tot === null || $haut_tronc === null || $tronc_diam === null) {
+            json_response(['ok' => false, 'error' => 'Paramètres invalides ou manquants : haut_tot, haut_tronc, tronc_diam'], 400);
+        }
+
         $bridge = new PythonBridge();
-        $result = $bridge->run(dirname(__DIR__) . '/IA/2-modele-prediction-age/script.py', [
-            'haut_tot' => request_value('haut_tot'),
-            'haut_tronc' => request_value('haut_tronc'),
-            'tronc_diam' => request_value('tronc_diam'),
+        $rawRemarquable = request_value('remarquable', '0');
+        $remarquable = in_array(strtolower((string)$rawRemarquable), ['1', 'oui', 'o', 'true', 'yes'], true) ? 'Oui' : 'Non';
+
+        $result = $bridge->run(APP_ROOT . '/../IA/2-modele-prediction-age/script.py', [
+            'haut_tot' => $haut_tot,
+            'haut_tronc' => $haut_tronc,
+            'tronc_diam' => $tronc_diam,
             'clc_nbr_diag' => request_value('clc_nbr_diag', 0),
-            'remarquable' => request_value('remarquable', 'Non'),
+            'remarquable' => $remarquable,
         ]);
+
+        $lastRawOutput = $result['output'] ?? null;
 
         json_response([
             'ok' => $result['ok'],
@@ -80,18 +96,29 @@ try {
     }
 
     if ($action === 'predict-cluster') {
+        // Validate numeric inputs
+        $haut_tot = to_nullable_float(request_value('haut_tot'));
+        $haut_tronc = to_nullable_float(request_value('haut_tronc'));
+        $tronc_diam = to_nullable_float(request_value('tronc_diam'));
+
+        if ($haut_tot === null || $haut_tronc === null || $tronc_diam === null) {
+            json_response(['ok' => false, 'error' => 'Paramètres invalides ou manquants : haut_tot, haut_tronc, tronc_diam'], 400);
+        }
+
         $bridge = new PythonBridge();
-        $result = $bridge->run(dirname(__DIR__) . '/IA/1 - Visualisation-carte/predict_cluster.py', [
-            'haut_tot' => request_value('haut_tot'),
-            'haut_tronc' => request_value('haut_tronc'),
-            'tronc_diam' => request_value('tronc_diam'),
-            'k' => request_value('k', 2),
+        $result = $bridge->run(APP_ROOT . '/../IA/1 - Visualisation-carte/predict_cluster.py', [
+            'haut_tot' => $haut_tot,
+            'haut_tronc' => $haut_tronc,
+            'tronc_diam' => $tronc_diam,
+            'k' => (int) request_value('k', 2),
         ]);
+
+        $lastRawOutput = $result['output'] ?? null;
 
         json_response([
             'ok' => $result['ok'],
             'data' => [
-                'cluster' => $bridge->parseCluster($result['output'] ?? ''),
+                'cluster' => (new PythonBridge())->parseCluster($result['output'] ?? ''),
                 'raw_output' => $result['output'] ?? '',
             ],
             'error' => $result['ok'] ? null : 'La classification de gabarit a échoué.',
@@ -99,12 +126,29 @@ try {
     }
 
     if ($action === 'predict-alert') {
+        // Validate required numeric and string inputs
+        $haut_tot = to_nullable_float(request_value('haut_tot'));
+        $haut_tronc = to_nullable_float(request_value('haut_tronc'));
+        $tronc_diam = to_nullable_float(request_value('tronc_diam'));
+        $age_estim = to_nullable_float(request_value('age_estim'));
+
+        $requiredStr = ['fk_stadedev','fk_port','fk_pied','fk_situation','fk_revetement','feuillage'];
+        foreach ($requiredStr as $s) {
+            if (trim((string) request_value($s)) === '') {
+                json_response(['ok' => false, 'error' => "Paramètre manquant: $s"], 400);
+            }
+        }
+
+        if ($haut_tot === null || $haut_tronc === null || $tronc_diam === null || $age_estim === null) {
+            json_response(['ok' => false, 'error' => 'Paramètres numériques invalides ou manquants pour l\'alerte'], 400);
+        }
+
         $bridge = new PythonBridge();
-        $result = $bridge->run(dirname(__DIR__) . '/IA/3-Systeme-alerte-tempête/predire_alerte.py', [
-            'haut_tot' => request_value('haut_tot'),
-            'haut_tronc' => request_value('haut_tronc'),
-            'tronc_diam' => request_value('tronc_diam'),
-            'age_estim' => request_value('age_estim'),
+        $result = $bridge->run(APP_ROOT . '/../IA/3-Systeme-alerte-tempête/predire_alerte.py', [
+            'haut_tot' => $haut_tot,
+            'haut_tronc' => $haut_tronc,
+            'tronc_diam' => $tronc_diam,
+            'age_estim' => $age_estim,
             'fk_stadedev' => request_value('fk_stadedev'),
             'fk_port' => request_value('fk_port'),
             'fk_pied' => request_value('fk_pied'),
@@ -112,6 +156,8 @@ try {
             'fk_revetement' => request_value('fk_revetement'),
             'feuillage' => request_value('feuillage'),
         ]);
+
+        $lastRawOutput = $result['output'] ?? null;
 
         $parsed = $bridge->parseAlert($result['output'] ?? '');
         json_response([
@@ -123,5 +169,5 @@ try {
 
     json_response(['ok' => false, 'error' => 'Action inconnue.'], 404);
 } catch (Throwable $exception) {
-    json_response(['ok' => false, 'error' => $exception->getMessage()], 500);
+    json_response(['ok' => false, 'error' => $exception->getMessage(), 'raw_output' => $lastRawOutput ?? null], 500);
 }

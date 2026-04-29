@@ -1,8 +1,6 @@
 <main class="flex-grow w-full max-w-[1280px] mx-auto px-container-padding py-stack-lg">
     <div class="mb-stack-lg">
         <h1 class="font-h1 text-h1 text-primary mb-2">Outils de prédiction IA</h1>
-        <p class="font-body-lg text-body-lg text-on-surface-variant">Accédez aux scripts Python développés pour l'analyse prédictive. Trois modèles ML vous aident à estimer l'âge, classer les gabarits et détecter les risques tempête.</p>
-    </div>
 
     <!-- Prediction Cards Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-stack-lg mb-stack-lg">
@@ -27,8 +25,8 @@
                         <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="haut_tronc" type="number" step="0.01" required placeholder="8.2">
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (cm)</label>
-                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="120">
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (m)</label>
+                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="1.20">
                     </div>
                     <div>
                         <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Nb diagnostics</label>
@@ -70,8 +68,8 @@
                         <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="haut_tronc" type="number" step="0.01" required placeholder="8.2">
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (cm)</label>
-                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="120">
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (m)</label>
+                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="1.20">
                     </div>
                     <div>
                         <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Nombre de clusters</label>
@@ -110,8 +108,8 @@
                     <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="haut_tronc" type="number" step="0.01" required placeholder="8.2">
                 </div>
                 <div>
-                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (cm)</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="120">
+                    <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (m)</label>
+                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" required placeholder="1.20">
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Âge estimé</label>

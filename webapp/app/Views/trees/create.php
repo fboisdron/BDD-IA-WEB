@@ -58,8 +58,8 @@
                         <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="haut_tronc" type="number" step="0.01" placeholder="0.0">
                     </div>
                     <div>
-                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (cm)</label>
-                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" placeholder="0">
+                        <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Diamètre tronc (m)</label>
+                        <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="tronc_diam" type="number" step="0.01" placeholder="1.20">
                     </div>
                     <div>
                         <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Âge estimé</label>

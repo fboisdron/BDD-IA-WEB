@@ -114,13 +114,6 @@
             holder.innerHTML = `<div class="p-stack-lg bg-error-container/20 border border-error rounded-lg text-error">Impossible de charger le catalogue.</div>`;
         }
     };
-                    </tbody>
-                </table>
-            `;
-        } catch (error) {
-            holder.innerHTML = `<div class="form-result">Impossible de charger le catalogue.</div>`;
-        }
-    };
 
     const serializeForm = (form) => Object.fromEntries(new FormData(form).entries());
 
@@ -136,6 +129,13 @@
             
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
+                // Use HTML5 constraint validation to prevent empty/invalid inputs
+                if (typeof form.checkValidity === 'function' && !form.checkValidity()) {
+                    if (typeof form.reportValidity === 'function') {
+                        form.reportValidity();
+                    }
+                    return;
+                }
                 if (result) {
                     result.innerHTML = '<div class="mt-stack-md p-stack-md bg-surface-container rounded-lg text-on-surface-variant">Traitement en cours...</div>';
                 }

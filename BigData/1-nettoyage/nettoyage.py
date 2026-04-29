@@ -217,13 +217,12 @@ def replace_zero_with_nan(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
     return df
 
 
-def convert_cm_to_meters(df: pd.DataFrame) -> pd.DataFrame:
-    """Convertit tronc_diam de centimètres en mètres."""
+def ensure_tronc_diam_numeric(df: pd.DataFrame) -> pd.DataFrame:
+    """Assure que tronc_diam est numérique (déjà en mètres dans la source)."""
     df = df.copy()
     if 'tronc_diam' in df.columns:
         df['tronc_diam'] = pd.to_numeric(df['tronc_diam'], errors='coerce')
-        df['tronc_diam'] = df['tronc_diam'] / 100
-        print("✓ tronc_diam converti de cm en mètres")
+        print("✓ tronc_diam conservé en mètres (aucune conversion)")
     return df
 
 
@@ -376,8 +375,8 @@ def main():
     # 4) Colonnes numériques : 0 => NaN si valeur non crédible
     df = replace_zero_with_nan(df, ['haut_tot', 'haut_tronc', 'tronc_diam'])
 
-    # 4b) Convertir tronc_diam de cm en mètres
-    df = convert_cm_to_meters(df)
+    # 4b) tronc_diam est déjà en mètres dans la source
+    df = ensure_tronc_diam_numeric(df)
 
     # 5) Compléter l'âge via la date de plantation quand possible
     df = fill_age_from_planting_date(df)

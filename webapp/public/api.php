@@ -33,6 +33,8 @@ try {
                 'feuillage'  => request_value('feuillage', ''),
                 'remarquable' => request_value('remarquable', ''),
                 'q'          => request_value('q', ''),
+                'sort'       => request_value('sort', ''),
+                'order'      => request_value('order', ''),
             ]),
         ]);
     }

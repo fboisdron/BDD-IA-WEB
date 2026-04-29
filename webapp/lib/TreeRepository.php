@@ -108,6 +108,11 @@ final class TreeRepository
         $countStmt->execute($params);
         $total = (int) $countStmt->fetchColumn();
 
+        $sortableColumns = ['id_arbre', 'haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim'];
+        $sortCol = in_array($filters['sort'] ?? '', $sortableColumns, true) ? $filters['sort'] : 'id_arbre';
+        $sortOrder = strtoupper($filters['order'] ?? '') === 'ASC' ? 'ASC' : 'DESC';
+        $orderBy = "{$sortCol} {$sortOrder} NULLS LAST";
+
         $sql = <<<SQL
             SELECT
                 id_arbre, clc_quartier, clc_secteur, haut_tot, haut_tronc, tronc_diam,
@@ -116,7 +121,7 @@ final class TreeRepository
                 longitude, latitude
             FROM arbres
             WHERE {$where}
-            ORDER BY id_arbre DESC NULLS LAST
+            ORDER BY {$orderBy}
             LIMIT :limit OFFSET :offset
         SQL;
 

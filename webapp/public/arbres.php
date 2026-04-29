@@ -150,20 +150,41 @@ require_once __DIR__ . '/partials/header.php';
 
             <!-- Scrollable table -->
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse text-sm">
+                <table class="w-full text-left border-collapse text-sm table-fixed">
+                    <colgroup>
+                        <col class="w-16">       <!-- ID -->
+                        <col class="w-[15%]">    <!-- Nom français -->
+                        <col class="w-[15%]">    <!-- Nom latin -->
+                        <col class="w-[12%]">    <!-- Quartier -->
+                        <col class="w-[10%]">    <!-- Secteur -->
+                        <col class="w-[9%]">     <!-- Stade -->
+                        <col class="w-[8%]">     <!-- Haut. -->
+                        <col class="w-[8%]">     <!-- Diam. -->
+                        <col class="w-[8%]">     <!-- Âge est. -->
+                        <col class="w-[9%]">     <!-- Feuillage -->
+                        <col class="w-[9%]">     <!-- Remarquable -->
+                    </colgroup>
                     <thead>
                         <tr class="bg-primary text-white font-label-sm uppercase tracking-widest text-[11px]">
-                            <th class="px-4 py-3 whitespace-nowrap">ID</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Nom français</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Nom latin</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Quartier</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Secteur</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Stade</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Haut. (m)</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Diam. (m)</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Âge est.</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Feuillage</th>
-                            <th class="px-4 py-3 whitespace-nowrap">Remarquable</th>
+                            <th class="px-4 py-3 cursor-pointer select-none hover:bg-primary-container transition-colors" data-sort="id_arbre">
+                                <span class="flex items-center gap-1">ID <span class="sort-icon opacity-50">⇅</span></span>
+                            </th>
+                            <th class="px-4 py-3 truncate">Nom français</th>
+                            <th class="px-4 py-3 truncate">Nom latin</th>
+                            <th class="px-4 py-3 truncate">Quartier</th>
+                            <th class="px-4 py-3 truncate">Secteur</th>
+                            <th class="px-4 py-3 truncate">Stade</th>
+                            <th class="px-4 py-3 cursor-pointer select-none hover:bg-primary-container transition-colors" data-sort="haut_tot">
+                                <span class="flex items-center gap-1">Haut. (m) <span class="sort-icon opacity-50">⇅</span></span>
+                            </th>
+                            <th class="px-4 py-3 cursor-pointer select-none hover:bg-primary-container transition-colors" data-sort="tronc_diam">
+                                <span class="flex items-center gap-1">Diam. (m) <span class="sort-icon opacity-50">⇅</span></span>
+                            </th>
+                            <th class="px-4 py-3 cursor-pointer select-none hover:bg-primary-container transition-colors" data-sort="age_estim">
+                                <span class="flex items-center gap-1">Âge est. <span class="sort-icon opacity-50">⇅</span></span>
+                            </th>
+                            <th class="px-4 py-3 truncate">Feuillage</th>
+                            <th class="px-4 py-3 truncate">Remarquable</th>
                         </tr>
                     </thead>
                     <tbody id="tree-tbody" class="divide-y divide-surface-container text-on-surface-variant">
@@ -188,6 +209,8 @@ require_once __DIR__ . '/partials/header.php';
 
     let currentPage = 1;
     let debounceTimer = null;
+    let sortCol = null;
+    let sortOrder = null;
 
     const filters = () => ({
         q:           document.getElementById('f-q').value.trim(),
@@ -206,23 +229,40 @@ require_once __DIR__ . '/partials/header.php';
     const buildUrl = (page) => {
         const f = filters();
         const params = new URLSearchParams({ action: 'trees', page, ...f });
+        if (sortCol) { params.set('sort', sortCol); params.set('order', sortOrder); }
         return `${apiUrl}?${params}`;
+    };
+
+    const updateSortHeaders = () => {
+        document.querySelectorAll('[data-sort]').forEach(th => {
+            const col = th.dataset.sort;
+            const icon = th.querySelector('.sort-icon');
+            if (col === sortCol) {
+                icon.textContent = sortOrder === 'ASC' ? '↑' : '↓';
+                icon.classList.remove('opacity-50');
+                th.classList.add('bg-primary-container');
+            } else {
+                icon.textContent = '⇅';
+                icon.classList.add('opacity-50');
+                th.classList.remove('bg-primary-container');
+            }
+        });
     };
 
     const renderRow = (item, idx) => {
         const rem = Number(item.remarquable) === 1;
         return `
             <tr class="${idx % 2 === 0 ? 'bg-white' : 'bg-surface-container-low'} hover:bg-surface-container transition-colors">
-                <td class="px-4 py-3 font-semibold text-primary whitespace-nowrap">${item.id_arbre ?? '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.nomfrancais ?? '—'}</td>
-                <td class="px-4 py-3 italic text-xs whitespace-nowrap">${item.nomlatin ?? '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.clc_quartier ?? '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.clc_secteur ?? '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.fk_stadedev ?? '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.haut_tot != null ? Number(item.haut_tot).toFixed(1) : '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.tronc_diam != null ? Number(item.tronc_diam).toFixed(2) : '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.age_estim != null ? Math.round(item.age_estim) + ' ans' : '—'}</td>
-                <td class="px-4 py-3 whitespace-nowrap">${item.feuillage ?? '—'}</td>
+                <td class="px-4 py-3 font-semibold text-primary">${item.id_arbre ?? '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0" title="${item.nomfrancais ?? ''}">${item.nomfrancais ?? '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0 italic text-xs" title="${item.nomlatin ?? ''}">${item.nomlatin ?? '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0" title="${item.clc_quartier ?? ''}">${item.clc_quartier ?? '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0" title="${item.clc_secteur ?? ''}">${item.clc_secteur ?? '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0">${item.fk_stadedev ?? '—'}</td>
+                <td class="px-4 py-3">${item.haut_tot != null ? Number(item.haut_tot).toFixed(1) : '—'}</td>
+                <td class="px-4 py-3">${item.tronc_diam != null ? Number(item.tronc_diam).toFixed(2) : '—'}</td>
+                <td class="px-4 py-3">${item.age_estim != null ? Math.round(item.age_estim) + ' ans' : '—'}</td>
+                <td class="px-4 py-3 truncate max-w-0">${item.feuillage ?? '—'}</td>
                 <td class="px-4 py-3 whitespace-nowrap">
                     <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold uppercase
                         ${rem ? 'bg-secondary-fixed text-on-secondary-fixed-variant' : 'bg-surface-container text-on-surface-variant'}">
@@ -262,7 +302,8 @@ require_once __DIR__ . '/partials/header.php';
     const load = async (page = 1) => {
         currentPage = page;
         const tbody = document.getElementById('tree-tbody');
-        tbody.innerHTML = `<tr><td colspan="11" class="px-6 py-8 text-center text-on-surface-variant">Chargement…</td></tr>`;
+        tbody.style.opacity = '0.4';
+        tbody.style.pointerEvents = 'none';
 
         try {
             const res = await fetch(buildUrl(page));
@@ -271,6 +312,8 @@ require_once __DIR__ . '/partials/header.php';
 
             const { items, pagination } = data.data;
 
+            tbody.style.opacity = '';
+            tbody.style.pointerEvents = '';
             tbody.innerHTML = items.length
                 ? items.map((item, idx) => renderRow(item, idx)).join('')
                 : `<tr><td colspan="11" class="px-6 py-8 text-center text-on-surface-variant">Aucun arbre trouvé.</td></tr>`;
@@ -289,6 +332,8 @@ require_once __DIR__ . '/partials/header.php';
                 btn.addEventListener('click', () => load(Number(btn.dataset.page)));
             });
         } catch (err) {
+            tbody.style.opacity = '';
+            tbody.style.pointerEvents = '';
             tbody.innerHTML = `<tr><td colspan="11" class="px-6 py-8 text-center text-error">${err.message}</td></tr>`;
         }
     };
@@ -298,6 +343,8 @@ require_once __DIR__ . '/partials/header.php';
         ['f-stade', 'f-port', 'f-pied', 'f-situation', 'f-revetement', 'f-feuillage', 'f-remarquable'].forEach(id =>
             document.getElementById(id).value = '');
         document.getElementById('f-limit').value = '25';
+        sortCol = null; sortOrder = null;
+        updateSortHeaders();
         load(1);
     };
 
@@ -311,6 +358,17 @@ require_once __DIR__ . '/partials/header.php';
     ['f-stade', 'f-port', 'f-pied', 'f-situation', 'f-revetement', 'f-feuillage', 'f-remarquable', 'f-limit'].forEach(id =>
         document.getElementById(id).addEventListener('change', () => load(1)));
     document.getElementById('btn-reset').addEventListener('click', resetFilters);
+
+    document.querySelectorAll('[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+            const col = th.dataset.sort;
+            if (sortCol !== col) { sortCol = col; sortOrder = 'ASC'; }
+            else if (sortOrder === 'ASC') { sortOrder = 'DESC'; }
+            else { sortCol = null; sortOrder = null; }
+            updateSortHeaders();
+            load(1);
+        });
+    });
 
     load(1);
 })();

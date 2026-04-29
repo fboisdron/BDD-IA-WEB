@@ -2,28 +2,25 @@
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/config/app.php';
-require_once dirname(__DIR__) . '/lib/helpers.php';
-require_once dirname(__DIR__) . '/lib/Database.php';
-require_once dirname(__DIR__) . '/lib/TreeRepository.php';
-require_once dirname(__DIR__) . '/lib/AuthRepository.php';
-require_once dirname(__DIR__) . '/lib/PythonBridge.php';
+// Support both local (public/ subfolder) and flat server deployment
+$_appRoot = is_file(dirname(__DIR__) . '/config/app.php') ? dirname(__DIR__) : __DIR__;
+require_once $_appRoot . '/config/app.php';
+require_once $_appRoot . '/lib/helpers.php';
+require_once $_appRoot . '/lib/Database.php';
+require_once $_appRoot . '/lib/TreeRepository.php';
+require_once $_appRoot . '/lib/AuthRepository.php';
+require_once $_appRoot . '/lib/PythonBridge.php';
 
 // Session setup
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params([
-        'lifetime' => 0,
-        'path'     => '/',
-        'secure'   => false,
-        'httponly' => true,
-        'samesite' => 'Strict',
-    ]);
+    session_set_cookie_params(0, '/', '', false, true);
     session_start();
 }
 
 $database       = new Database();
 $repository     = null;
 $authRepository = null;
+$dbError        = null;
 
 try {
     $pdo            = $database->pdo();
@@ -32,6 +29,7 @@ try {
 } catch (Throwable $exception) {
     $repository     = null;
     $authRepository = null;
+    $dbError        = $exception->getMessage();
 }
 
 // Auth guard — exempt: login.php, logout.php

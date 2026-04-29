@@ -8,7 +8,7 @@ use App\Models\TreeModel;
 
 class MapController
 {
-    private TreeModel $treeModel;
+    private $treeModel;
 
     public function __construct(TreeModel $treeModel)
     {

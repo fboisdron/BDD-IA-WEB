@@ -11,8 +11,8 @@ use App\Controllers\PredictionController;
 
 class Router
 {
-    private array $routes = [];
-    private array $controllers = [];
+    private $routes = [];
+    private $controllers = [];
 
     public function __construct(
         HomeController $homeController,
@@ -33,7 +33,7 @@ class Router
     /**
      * Register all application routes
      */
-    private function registerRoutes(): void
+    private function registerRoutes()
     {
         // Page routes
         $this->routes['GET']['/'] = ['home', 'index'];

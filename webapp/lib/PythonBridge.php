@@ -29,7 +29,7 @@ final class PythonBridge
         ];
     }
 
-    public function parseAge(string $output): ?float
+    public function parseAge(string $output)
     {
         if (preg_match('/Âge estimé\s*:\s*([0-9]+(?:\.[0-9]+)?)/u', $output, $matches)) {
             return (float) $matches[1];
@@ -38,7 +38,7 @@ final class PythonBridge
         return null;
     }
 
-    public function parseCluster(string $output): ?string
+    public function parseCluster(string $output)
     {
         if (preg_match('/Catégorie\s*:\s*(.+)$/m', $output, $matches)) {
             return trim($matches[1]);

@@ -10,7 +10,7 @@ use PythonBridge;
 
 class PredictionModel
 {
-    private PythonBridge $bridge;
+    private $bridge;
 
     public function __construct(PythonBridge $bridge)
     {

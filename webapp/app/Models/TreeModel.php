@@ -10,7 +10,7 @@ use TreeRepository;
 
 class TreeModel
 {
-    private TreeRepository $repository;
+    private $repository;
 
     public function __construct(TreeRepository $repository)
     {
@@ -30,11 +30,10 @@ class TreeModel
      */
     public function getTreesList(int $page = 1, int $limit = 12, array $filters = []): array
     {
-        return $this->repository->listTrees([
+        return $this->repository->listTrees(array_merge([
             'limit' => $limit,
             'offset' => ($page - 1) * $limit,
-            ...$filters,
-        ]);
+        ], $filters));
     }
 
     /**

@@ -8,7 +8,7 @@ use App\Models\PredictionModel;
 
 class PredictionController
 {
-    private PredictionModel $predictionModel;
+    private $predictionModel;
 
     public function __construct(PredictionModel $predictionModel)
     {

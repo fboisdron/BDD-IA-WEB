@@ -8,7 +8,7 @@ use App\Models\TreeModel;
 
 class HomeController
 {
-    private TreeModel $treeModel;
+    private $treeModel;
 
     public function __construct(TreeModel $treeModel)
     {

@@ -4,14 +4,19 @@ declare(strict_types=1);
 
 final class AuthRepository
 {
-    public function __construct(private readonly PDO $pdo) {}
+    private $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
 
     public function countUsers(): int
     {
         return (int) $this->pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
     }
 
-    public function findByUsername(string $username): ?array
+    public function findByUsername(string $username)
     {
         $stmt = $this->pdo->prepare('SELECT * FROM users WHERE username = :username LIMIT 1');
         $stmt->execute(['username' => $username]);
@@ -19,7 +24,7 @@ final class AuthRepository
         return $row ?: null;
     }
 
-    public function verify(string $username, string $password): ?array
+    public function verify(string $username, string $password)
     {
         $user = $this->findByUsername($username);
         if ($user === null) {

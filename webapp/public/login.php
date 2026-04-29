@@ -10,6 +10,10 @@ if (isset($_SESSION['user'])) {
     exit;
 }
 
+if ($authRepository === null) {
+    die('<pre style="font-family:monospace;padding:2em;color:#b00">Erreur de connexion à la base de données :<br>' . htmlspecialchars($dbError ?? 'inconnue') . '<br><br>Vérifiez le fichier .env dans /var/www/f_boisdr/</pre>');
+}
+
 $error   = null;
 $isSetup = ($authRepository->countUsers() === 0);
 

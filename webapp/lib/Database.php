@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 final class Database
 {
-    private ?PDO $pdo = null;
+    private $pdo = null;
 
-    public function pdo(): PDO
+    public function pdo()
     {
         if ($this->pdo instanceof PDO) {
             return $this->pdo;

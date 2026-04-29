@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 final class TreeRepository
 {
-    public function __construct(private readonly PDO $pdo)
+    private $pdo;
+
+    public function __construct(PDO $pdo)
     {
+        $this->pdo = $pdo;
     }
 
     public function summary(): array
     {
-        $sql = <<<SQL
-            SELECT
+        $sql = 'SELECT
                 COUNT(*) AS total,
-                COUNT(*) FILTER (WHERE remarquable = 1) AS remarquable,
+                SUM(CASE WHEN remarquable = 1 THEN 1 ELSE 0 END) AS remarquable,
                 AVG(haut_tot) AS avg_height,
                 AVG(age_estim) AS avg_age,
-                COUNT(*) FILTER (WHERE fk_arb_etat = 1) AS removed_or_replaced
-            FROM arbres
-        SQL;
+                SUM(CASE WHEN fk_arb_etat = 1 THEN 1 ELSE 0 END) AS removed_or_replaced
+            FROM arbres';
 
         $summary = $this->pdo->query($sql)->fetch() ?: [];
 
@@ -53,12 +54,12 @@ final class TreeRepository
         $params = [];
 
         if (!empty($filters['quartier'])) {
-            $clauses[] = 'clc_quartier ILIKE :quartier';
+            $clauses[] = 'clc_quartier LIKE :quartier';
             $params['quartier'] = '%' . $filters['quartier'] . '%';
         }
 
         if (!empty($filters['secteur'])) {
-            $clauses[] = 'clc_secteur ILIKE :secteur';
+            $clauses[] = 'clc_secteur LIKE :secteur';
             $params['secteur'] = '%' . $filters['secteur'] . '%';
         }
 
@@ -98,7 +99,7 @@ final class TreeRepository
         }
 
         if (!empty($filters['q'])) {
-            $clauses[] = '(fk_nomtech ILIKE :q OR nomfrancais ILIKE :q OR clc_quartier ILIKE :q OR clc_secteur ILIKE :q)';
+            $clauses[] = '(fk_nomtech LIKE :q OR nomfrancais LIKE :q OR clc_quartier LIKE :q OR clc_secteur LIKE :q)';
             $params['q'] = '%' . $filters['q'] . '%';
         }
 
@@ -111,10 +112,9 @@ final class TreeRepository
         $sortableColumns = ['id_arbre', 'haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim'];
         $sortCol = in_array($filters['sort'] ?? '', $sortableColumns, true) ? $filters['sort'] : 'id_arbre';
         $sortOrder = strtoupper($filters['order'] ?? '') === 'ASC' ? 'ASC' : 'DESC';
-        $orderBy = "{$sortCol} {$sortOrder} NULLS LAST";
+        $orderBy = "({$sortCol} IS NULL), {$sortCol} {$sortOrder}";
 
-        $sql = <<<SQL
-            SELECT
+        $sql = "SELECT
                 id_arbre, clc_quartier, clc_secteur, haut_tot, haut_tronc, tronc_diam,
                 fk_arb_etat, fk_stadedev, fk_situation, fk_port, fk_pied, fk_revetement, age_estim,
                 fk_nomtech, villeca, nomfrancais, nomlatin, feuillage, remarquable,
@@ -122,8 +122,7 @@ final class TreeRepository
             FROM arbres
             WHERE {$where}
             ORDER BY {$orderBy}
-            LIMIT :limit OFFSET :offset
-        SQL;
+            LIMIT :limit OFFSET :offset";
 
         $stmt = $this->pdo->prepare($sql);
         foreach ($params as $key => $value) {
@@ -213,10 +212,10 @@ final class TreeRepository
         $normalized['remarquable'] = isset($normalized['remarquable']) ? (int) $normalized['remarquable'] : 0;
 
         $columns = array_keys($normalized);
-        $placeholders = array_map(static fn (string $column): string => ':' . $column, $columns);
+        $placeholders = array_map(static function ($column) { return ':' . $column; }, $columns);
 
         $sql = sprintf(
-            'INSERT INTO arbres (%s) VALUES (%s) RETURNING id',
+            'INSERT INTO arbres (%s) VALUES (%s)',
             implode(', ', $columns),
             implode(', ', $placeholders)
         );
@@ -237,16 +236,15 @@ final class TreeRepository
         }
 
         $stmt->execute();
-        $inserted = $stmt->fetch();
 
         return [
             'inserted' => true,
-            'id' => $inserted ? (int) $inserted['id'] : null,
+            'id' => (int) $this->pdo->lastInsertId(),
             'id_arbre' => $normalized['id_arbre'] ?? null,
         ];
     }
 
-    public function setAlerte(int $id, ?bool $alerte): void
+    public function setAlerte($id, $alerte)
     {
         $stmt = $this->pdo->prepare('UPDATE arbres SET alerte_tempete = :alerte WHERE id = :id');
         $stmt->bindValue(':alerte', $alerte, $alerte === null ? PDO::PARAM_NULL : PDO::PARAM_BOOL);

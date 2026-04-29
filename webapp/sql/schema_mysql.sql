@@ -1,7 +1,4 @@
--- MySQL version: mysql -u root -p saint_quentin_arbre < webapp/sql/schema_mysql.sql
--- Create database if needed:
--- CREATE DATABASE IF NOT EXISTS saint_quentin_arbre CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
--- USE saint_quentin_arbre;
+-- MySQL version: mysql -u f_boisdr -p f_boisdr < /var/www/f_boisdr/sql/schema_mysql.sql
 
 CREATE TABLE IF NOT EXISTS arbres (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -30,28 +27,20 @@ CREATE TABLE IF NOT EXISTS arbres (
     latitude DOUBLE,
     alerte_tempete BOOLEAN DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    
-    -- CHECK constraints
-    CONSTRAINT chk_arbres_fk_stadedev CHECK (fk_stadedev IS NULL OR fk_stadedev IN ('adulte', 'jeune', 'senescent', 'vieux', 'N/A')),
-    CONSTRAINT chk_arbres_fk_port CHECK (fk_port IS NULL OR fk_port IN ('architecturé', 'couronné', 'cépée', 'libre', 'rideau', 'réduit', 'réduit relâché', 'semi libre', 'têtard', 'têtard relâché', 'tête de chat', 'tête de chat relâché', 'étêté', 'N/A')),
-    CONSTRAINT chk_arbres_fk_pied CHECK (fk_pied IS NULL OR fk_pied IN ('Bac de plantation', 'Revetement non permeable', 'bande de terre', 'fosse arbre', 'gazon', 'terre', 'toile tissée', 'végétation', 'N/A')),
-    CONSTRAINT chk_arbres_fk_situation CHECK (fk_situation IS NULL OR fk_situation IN ('Alignement', 'Groupe', 'Isolé', 'N/A')),
-    CONSTRAINT chk_arbres_fk_revetement CHECK (fk_revetement IS NULL OR fk_revetement IN ('Non', 'Oui', 'N/A')),
-    CONSTRAINT chk_arbres_feuillage CHECK (feuillage IS NULL OR feuillage IN ('Conifère', 'Feuillu', 'N/A'))
-);
 
-CREATE INDEX idx_arbres_quartier ON arbres (clc_quartier(100));
-CREATE INDEX idx_arbres_secteur ON arbres (clc_secteur(100));
-CREATE INDEX idx_arbres_stade ON arbres (fk_stadedev(50));
-CREATE INDEX idx_arbres_remarquable ON arbres (remarquable);
+    INDEX idx_arbres_quartier (clc_quartier(100)),
+    INDEX idx_arbres_secteur (clc_secteur(100)),
+    INDEX idx_arbres_stade (fk_stadedev(50)),
+    INDEX idx_arbres_remarquable (remarquable)
+);
 
 CREATE TABLE IF NOT EXISTS users (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    username TEXT NOT NULL,
-    email TEXT,
-    password_hash TEXT NOT NULL,
-    role TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
+    username VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'user',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_username (username(255)),
-    UNIQUE KEY unique_email (email(255))
+    UNIQUE KEY unique_username (username),
+    UNIQUE KEY unique_email (email)
 );

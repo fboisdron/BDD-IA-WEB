@@ -28,7 +28,7 @@ require_once __DIR__ . '/../lib/PythonBridge.php';
 
 // Session
 if (session_status() === PHP_SESSION_NONE) {
-    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'httponly' => true, 'samesite' => 'Strict']);
+    session_set_cookie_params(0, '/', '', false, true);
     session_start();
 }
 
@@ -52,10 +52,10 @@ use App\Routes\Router;
 
 class Application
 {
-    private static ?self $instance = null;
-    private Router $router;
-    private TreeModel $treeModel;
-    private PredictionModel $predictionModel;
+    private static $instance = null;
+    private $router;
+    private $treeModel;
+    private $predictionModel;
 
     private function __construct()
     {
@@ -65,7 +65,7 @@ class Application
     /**
      * Get singleton instance
      */
-    public static function getInstance(): self
+    public static function getInstance()
     {
         if (self::$instance === null) {
             self::$instance = new self();
@@ -76,7 +76,7 @@ class Application
     /**
      * Initialize the application
      */
-    private function initialize(): void
+    private function initialize()
     {
         // Initialize database and repositories
         $db = (new Database())->pdo();
@@ -105,7 +105,7 @@ class Application
     /**
      * Run the application
      */
-    public function run(): void
+    public function run()
     {
         $response = $this->router->dispatch();
 
@@ -137,7 +137,7 @@ class Application
     /**
      * Render a view with data
      */
-    private function renderView(string $view, array $data = []): void
+    private function renderView($view, array $data = [])
     {
         $viewPath = __DIR__ . '/Views/' . $view . '.php';
 
@@ -147,16 +147,19 @@ class Application
             return;
         }
 
+        $partialsDir = is_file(__DIR__ . '/../public/partials/header.php')
+            ? __DIR__ . '/../public/partials'
+            : __DIR__ . '/../partials';
         extract($data);
-        require_once __DIR__ . '/../public/partials/header.php';
+        require_once $partialsDir . '/header.php';
         require_once $viewPath;
-        require_once __DIR__ . '/../public/partials/footer.php';
+        require_once $partialsDir . '/footer.php';
     }
 
     /**
      * Get tree model
      */
-    public function getTreeModel(): TreeModel
+    public function getTreeModel()
     {
         return $this->treeModel;
     }
@@ -164,7 +167,7 @@ class Application
     /**
      * Get prediction model
      */
-    public function getPredictionModel(): PredictionModel
+    public function getPredictionModel()
     {
         return $this->predictionModel;
     }
@@ -172,7 +175,7 @@ class Application
     /**
      * Get router
      */
-    public function getRouter(): Router
+    public function getRouter()
     {
         return $this->router;
     }

@@ -2,9 +2,10 @@
 
 declare(strict_types=1);
 
-require_once dirname(__DIR__) . '/config/app.php';
-require_once dirname(__DIR__) . '/lib/helpers.php';
-require_once dirname(__DIR__) . '/lib/Database.php';
+$_appRoot = is_file(dirname(__DIR__) . '/config/app.php') ? dirname(__DIR__) : __DIR__;
+require_once $_appRoot . '/config/app.php';
+require_once $_appRoot . '/lib/helpers.php';
+require_once $_appRoot . '/lib/Database.php';
 
 if (php_sapi_name() !== 'cli') {
     fwrite(STDERR, "Ce script doit être lancé en ligne de commande.\n");
@@ -20,12 +21,6 @@ if (!is_file($csvPath)) {
 $database = new Database();
 $pdo = $database->pdo();
 
-// Load appropriate schema based on database type
-$schemaFile = dirname(__DIR__) . '/sql/schema_' . (DB_TYPE === 'mysql' ? 'mysql' : 'postgresql') . '.sql';
-if (!is_file($schemaFile)) {
-    $schemaFile = dirname(__DIR__) . '/sql/schema.sql';
-}
-$pdo->exec(file_get_contents($schemaFile));
 
 $handle = fopen($csvPath, 'r');
 if (!$handle) {
@@ -40,7 +35,7 @@ if ($header === false) {
 }
 
 $header[0] = preg_replace('/^\xEF\xBB\xBF/', '', $header[0]);
-$columns = array_map(static fn (string $column): string => trim($column), $header);
+$columns = array_map(static function ($column) { return trim($column); }, $header);
 $headerLookup = [];
 foreach ($columns as $columnName) {
     $headerLookup[strtolower($columnName)] = $columnName;
@@ -53,7 +48,7 @@ foreach (TREE_INSERT_COLUMNS as $column) {
     }
 }
 
-$placeholders = array_map(static fn (string $column): string => ':' . $column, $insertColumns);
+$placeholders = array_map(static function ($column) { return ':' . $column; }, $insertColumns);
 $sql = sprintf('INSERT INTO arbres (%s) VALUES (%s)', implode(', ', $insertColumns), implode(', ', $placeholders));
 $stmt = $pdo->prepare($sql);
 

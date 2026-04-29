@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-function json_response(array $payload, int $status = 200): never
+function json_response(array $payload, int $status = 200)
 {
     http_response_code($status);
     header('Content-Type: application/json; charset=utf-8');
@@ -10,7 +10,7 @@ function json_response(array $payload, int $status = 200): never
     exit;
 }
 
-function request_value(string $key, mixed $default = null): mixed
+function request_value(string $key, $default = null)
 {
     if (isset($_POST[$key])) {
         return trim((string) $_POST[$key]);
@@ -23,7 +23,7 @@ function request_value(string $key, mixed $default = null): mixed
     return $default;
 }
 
-function to_nullable_float(mixed $value): ?float
+function to_nullable_float($value)
 {
     if ($value === null || $value === '') {
         return null;
@@ -32,7 +32,7 @@ function to_nullable_float(mixed $value): ?float
     return is_numeric($value) ? (float) $value : null;
 }
 
-function to_nullable_int(mixed $value): ?int
+function to_nullable_int($value)
 {
     if ($value === null || $value === '') {
         return null;
@@ -41,7 +41,7 @@ function to_nullable_int(mixed $value): ?int
     return is_numeric($value) ? (int) $value : null;
 }
 
-function normalize_string(mixed $value, string $fallback = ''): string
+function normalize_string($value, string $fallback = ''): string
 {
     $value = trim((string) ($value ?? ''));
     return $value !== '' ? $value : $fallback;

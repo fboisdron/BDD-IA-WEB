@@ -117,27 +117,71 @@
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Stade de développement</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_stadedev" required placeholder="Mature">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_stadedev" required>
+                        <option value="adulte">adulte</option>
+                        <option value="jeune">jeune</option>
+                        <option value="senescent">senescent</option>
+                        <option value="vieux">vieux</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Port</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_port" required placeholder="Pyramidal">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_port" required>
+                        <option value="architecturé">architecturé</option>
+                        <option value="couronné">couronné</option>
+                        <option value="cépée">cépée</option>
+                        <option value="libre">libre</option>
+                        <option value="rideau">rideau</option>
+                        <option value="réduit">réduit</option>
+                        <option value="réduit relâché">réduit relâché</option>
+                        <option value="semi libre">semi libre</option>
+                        <option value="têtard">têtard</option>
+                        <option value="têtard relâché">têtard relâché</option>
+                        <option value="tête de chat">tête de chat</option>
+                        <option value="tête de chat relâché">tête de chat relâché</option>
+                        <option value="étêté">étêté</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Pied</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_pied" required placeholder="Libre">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_pied" required>
+                        <option value="Bac de plantation">Bac de plantation</option>
+                        <option value="Revetement non permeable">Revetement non permeable</option>
+                        <option value="bande de terre">bande de terre</option>
+                        <option value="fosse arbre">fosse arbre</option>
+                        <option value="gazon">gazon</option>
+                        <option value="terre">terre</option>
+                        <option value="toile tissée">toile tissée</option>
+                        <option value="végétation">végétation</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Situation</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_situation" required placeholder="Plein air">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_situation" required>
+                        <option value="Alignement">Alignement</option>
+                        <option value="Groupe">Groupe</option>
+                        <option value="Isolé">Isolé</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Revêtement</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_revetement" required placeholder="Bitume">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="fk_revetement" required>
+                        <option value="Non">Non</option>
+                        <option value="Oui">Oui</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div>
                     <label class="block font-label-sm text-label-sm text-on-surface-variant mb-unit">Feuillage</label>
-                    <input class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="feuillage" required placeholder="Caduque">
+                    <select class="w-full bg-surface border border-outline-variant rounded-lg p-3 inner-focus transition-all" name="feuillage" required>
+                        <option value="Conifère">Conifère</option>
+                        <option value="Feuillu">Feuillu</option>
+                        <option value="N/A">N/A</option>
+                    </select>
                 </div>
                 <div class="md:col-span-2 lg:col-span-1">
                     <button class="w-full bg-error text-on-error py-3 rounded-lg font-label-sm signature-shadow hover:bg-error-container transition-colors active:scale-95 flex items-center justify-center gap-2" type="submit">

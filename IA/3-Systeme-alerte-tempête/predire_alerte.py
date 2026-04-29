@@ -2,13 +2,18 @@ import argparse
 import pandas as pd
 import joblib
 import sys
+from pathlib import Path
 
 
 def charger_modele(model_path: str):
+    resolved_path = Path(model_path)
+    if not resolved_path.is_absolute():
+        resolved_path = Path(__file__).resolve().parent / resolved_path
+
     try:
-        return joblib.load(model_path)
+        return joblib.load(resolved_path)
     except FileNotFoundError:
-        print(f"Erreur : modèle introuvable : {model_path}")
+        print(f"Erreur : modèle introuvable : {resolved_path}")
         sys.exit(1)
     except Exception as e:
         print(f"Erreur lors du chargement du modèle : {e}")

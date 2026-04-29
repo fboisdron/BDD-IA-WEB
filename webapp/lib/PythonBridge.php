@@ -55,7 +55,7 @@ final class PythonBridge
         }
 
         return [
-            'alert' => str_contains($output, 'ALERTE'),
+            'alert' => preg_match('/^ALERTE\b/mu', $output) === 1,
             'probability' => $probability,
         ];
     }

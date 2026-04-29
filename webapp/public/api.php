@@ -21,13 +21,18 @@ try {
         json_response([
             'ok' => true,
             'data' => $repository->listTrees([
-                'page' => request_value('page', 1),
-                'limit' => request_value('limit', 25),
-                'quartier' => request_value('quartier', ''),
-                'secteur' => request_value('secteur', ''),
-                'stade' => request_value('stade', ''),
+                'page'       => request_value('page', 1),
+                'limit'      => request_value('limit', 25),
+                'quartier'   => request_value('quartier', ''),
+                'secteur'    => request_value('secteur', ''),
+                'stade'      => request_value('stade', ''),
+                'port'       => request_value('port', ''),
+                'pied'       => request_value('pied', ''),
+                'situation'  => request_value('situation', ''),
+                'revetement' => request_value('revetement', ''),
+                'feuillage'  => request_value('feuillage', ''),
                 'remarquable' => request_value('remarquable', ''),
-                'q' => request_value('q', ''),
+                'q'          => request_value('q', ''),
             ]),
         ]);
     }

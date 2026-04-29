@@ -63,8 +63,33 @@ final class TreeRepository
         }
 
         if (!empty($filters['stade'])) {
-            $clauses[] = 'fk_stadedev ILIKE :stade';
-            $params['stade'] = '%' . $filters['stade'] . '%';
+            $clauses[] = 'fk_stadedev = :stade';
+            $params['stade'] = $filters['stade'];
+        }
+
+        if (!empty($filters['port'])) {
+            $clauses[] = 'fk_port = :port';
+            $params['port'] = $filters['port'];
+        }
+
+        if (!empty($filters['pied'])) {
+            $clauses[] = 'fk_pied = :pied';
+            $params['pied'] = $filters['pied'];
+        }
+
+        if (!empty($filters['situation'])) {
+            $clauses[] = 'fk_situation = :situation';
+            $params['situation'] = $filters['situation'];
+        }
+
+        if (!empty($filters['revetement'])) {
+            $clauses[] = 'fk_revetement = :revetement';
+            $params['revetement'] = $filters['revetement'];
+        }
+
+        if (!empty($filters['feuillage'])) {
+            $clauses[] = 'feuillage = :feuillage';
+            $params['feuillage'] = $filters['feuillage'];
         }
 
         if (!empty($filters['remarquable'])) {

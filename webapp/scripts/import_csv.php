@@ -19,7 +19,13 @@ if (!is_file($csvPath)) {
 
 $database = new Database();
 $pdo = $database->pdo();
-$pdo->exec(file_get_contents(dirname(__DIR__) . '/sql/schema.sql'));
+
+// Load appropriate schema based on database type
+$schemaFile = dirname(__DIR__) . '/sql/schema_' . (DB_TYPE === 'mysql' ? 'mysql' : 'postgresql') . '.sql';
+if (!is_file($schemaFile)) {
+    $schemaFile = dirname(__DIR__) . '/sql/schema.sql';
+}
+$pdo->exec(file_get_contents($schemaFile));
 
 $handle = fopen($csvPath, 'r');
 if (!$handle) {

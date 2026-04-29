@@ -18,28 +18,47 @@ final class Database
             PDO::ATTR_EMULATE_PREPARES => false,
         ];
 
-        $attempts = [
-            [
-                'dsn' => sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
-                'user' => DB_USER,
-                'pass' => DB_PASSWORD,
-            ],
-            [
-                'dsn' => sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
-                'user' => DB_USER,
-                'pass' => '',
-            ],
-            [
-                'dsn' => sprintf('pgsql:host=/var/run/postgresql;dbname=%s', DB_NAME),
-                'user' => DB_USER,
-                'pass' => DB_PASSWORD,
-            ],
-            [
-                'dsn' => sprintf('pgsql:host=/var/run/postgresql;dbname=%s', DB_NAME),
-                'user' => DB_USER,
-                'pass' => '',
-            ],
-        ];
+        $attempts = [];
+
+        if (DB_TYPE === 'mysql') {
+            // MySQL connection attempts
+            $attempts = [
+                [
+                    'dsn' => sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', DB_HOST, DB_PORT, DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => DB_PASSWORD,
+                ],
+                [
+                    'dsn' => sprintf('mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4', DB_HOST, DB_PORT, DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => '',
+                ],
+            ];
+        } else {
+            // PostgreSQL connection attempts (legacy)
+            $attempts = [
+                [
+                    'dsn' => sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => DB_PASSWORD,
+                ],
+                [
+                    'dsn' => sprintf('pgsql:host=%s;port=%s;dbname=%s', DB_HOST, DB_PORT, DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => '',
+                ],
+                [
+                    'dsn' => sprintf('pgsql:host=/var/run/postgresql;dbname=%s', DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => DB_PASSWORD,
+                ],
+                [
+                    'dsn' => sprintf('pgsql:host=/var/run/postgresql;dbname=%s', DB_NAME),
+                    'user' => DB_USER,
+                    'pass' => '',
+                ],
+            ];
+        }
 
         $seen = [];
         $errors = [];
@@ -59,9 +78,10 @@ final class Database
             }
         }
 
-        $lastError = $errors !== [] ? $errors[count($errors) - 1] : 'Erreur inconnue de connexion PostgreSQL';
+        $dbTypeLabel = DB_TYPE === 'mysql' ? 'MySQL' : 'PostgreSQL';
+        $lastError = $errors !== [] ? $errors[count($errors) - 1] : "Erreur inconnue de connexion $dbTypeLabel";
         throw new RuntimeException(
-            'Connexion PostgreSQL impossible. Vérifiez PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD. Dernière erreur: ' . $lastError
+            "Connexion $dbTypeLabel impossible. Vérifiez les variables d'environnement DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD. Dernière erreur: " . $lastError
         );
 
         return $this->pdo;

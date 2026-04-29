@@ -6,11 +6,24 @@ define('APP_ROOT', dirname(__DIR__));
 define('APP_NAME', 'Saint-Quentin Arboré');
 define('APP_BASE_URL', getenv('APP_BASE_URL') ?: '');
 
-define('DB_HOST', getenv('PGHOST') ?: '127.0.0.1');
-define('DB_PORT', getenv('PGPORT') ?: '5432');
-define('DB_NAME', getenv('PGDATABASE') ?: 'saint_quentin_arbre');
-define('DB_USER', getenv('PGUSER') ?: 'postgres');
-define('DB_PASSWORD', getenv('PGPASSWORD') ?: 'postgres');
+// Database type: 'pgsql' for PostgreSQL, 'mysql' for MySQL
+$dbType = getenv('DB_TYPE') ?: 'mysql';
+define('DB_TYPE', $dbType);
+
+if ($dbType === 'mysql') {
+    define('DB_HOST', getenv('MYSQL_HOST') ?: getenv('DB_HOST') ?: '127.0.0.1');
+    define('DB_PORT', getenv('MYSQL_PORT') ?: getenv('DB_PORT') ?: '3306');
+    define('DB_NAME', getenv('MYSQL_DATABASE') ?: getenv('DB_NAME') ?: 'saint_quentin_arbre');
+    define('DB_USER', getenv('MYSQL_USER') ?: getenv('DB_USER') ?: 'root');
+    define('DB_PASSWORD', getenv('MYSQL_PASSWORD') ?: getenv('DB_PASSWORD') ?: '');
+} else {
+    // PostgreSQL (legacy)
+    define('DB_HOST', getenv('PGHOST') ?: getenv('DB_HOST') ?: '127.0.0.1');
+    define('DB_PORT', getenv('PGPORT') ?: getenv('DB_PORT') ?: '5432');
+    define('DB_NAME', getenv('PGDATABASE') ?: getenv('DB_NAME') ?: 'saint_quentin_arbre');
+    define('DB_USER', getenv('PGUSER') ?: getenv('DB_USER') ?: 'postgres');
+    define('DB_PASSWORD', getenv('PGPASSWORD') ?: getenv('DB_PASSWORD') ?: 'postgres');
+}
 
 define('CSV_CLEAN_FILE', dirname(APP_ROOT) . '/BigData/data/Patrimoine_Arboré_data_clean.csv');
 $defaultPythonBin = dirname(APP_ROOT) . '/BigData/nettoyage/.venv/bin/python';

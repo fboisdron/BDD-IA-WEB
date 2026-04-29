@@ -7,7 +7,7 @@ define('APP_NAME', 'Saint-Quentin Arboré');
 define('APP_BASE_URL', getenv('APP_BASE_URL') ?: '');
 
 // Database type: 'pgsql' for PostgreSQL, 'mysql' for MySQL
-$dbType = getenv('DB_TYPE') ?: 'mysql';
+$dbType = getenv('DB_TYPE') ?: 'pgsql';
 define('DB_TYPE', $dbType);
 
 if ($dbType === 'mysql') {

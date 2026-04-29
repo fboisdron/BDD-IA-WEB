@@ -20,9 +20,9 @@
                     <span class="material-symbols-outlined">explore</span>
                     Explorer le registre
                 </a>
-                <a href="/predictions" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-lg font-label-sm flex items-center gap-2 hover:bg-white/20 transition-colors">
+                <a href="/besoins.php" class="bg-white/10 backdrop-blur-md border border-white/20 text-white px-8 py-3 rounded-lg font-label-sm flex items-center gap-2 hover:bg-white/20 transition-colors">
                     <span class="material-symbols-outlined">info</span>
-                    Outils IA
+                    Besoins clients
                 </a>
             </div>
         </div>
@@ -190,21 +190,3 @@
     </div>
 </section>
 
-<!-- CTA Section -->
-<section class="py-24 bg-primary text-white text-center">
-    <div class="container mx-auto px-container-padding max-w-2xl">
-        <span class="material-symbols-outlined text-6xl mb-stack-md text-secondary-fixed-dim block" style="font-variation-settings: 'FILL' 1;">landscape</span>
-        <h2 class="font-h1 text-h1 mb-stack-md">Prêt à contribuer?</h2>
-        <p class="font-body-lg text-on-primary-container mb-stack-lg">
-            Que vous soyez arboriste, chercheur ou citoyen engagé, votre participation nous aide à construire une canopée urbaine plus résiliente.
-        </p>
-        <div class="flex flex-col sm:flex-row justify-center gap-stack-md">
-            <a href="/trees/create" class="bg-secondary-fixed text-on-secondary-fixed px-10 py-4 rounded-lg font-h3 custom-shadow hover:bg-secondary-container transition-colors">
-                Devenir sentinelle
-            </a>
-            <button class="bg-transparent border-2 border-white/30 text-white px-10 py-4 rounded-lg font-h3 hover:bg-white/10 transition-colors">
-                Contacter le bureau d'arboriculture
-            </button>
-        </div>
-    </div>
-</section>

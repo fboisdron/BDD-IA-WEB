@@ -11,7 +11,7 @@ require_once __DIR__ . '/partials/header.php';
     <div class="max-w-[1280px] mx-auto">
         <div class="mb-stack-lg">
             <h1 class="font-h1 text-h1 text-primary mb-2">Cartes thématiques</h1>
-            <p class="font-body-lg text-body-lg text-on-surface-variant">Explorez les données du patrimoine arboré à travers trois perspectives analytiques. Chaque carte utilise les données PostgreSQL pour une visualisation thématique adaptée à vos besoins.</p>
+            <p class="font-body-lg text-body-lg text-on-surface-variant">Explorez les données du patrimoine arboré à travers deux perspectives analytiques.</p>
         </div>
 
         <!-- Tabs Navigation -->
@@ -23,10 +23,6 @@ require_once __DIR__ . '/partials/header.php';
             <button class="tab-button pb-3 font-label-sm text-label-sm px-stack-md border-b-2 border-transparent text-on-surface-variant hover:text-secondary transition-colors" data-map-tab="cluster">
                 <span class="material-symbols-outlined text-base align-middle">hub</span>
                 <span>Clustering de gabarit</span>
-            </button>
-            <button class="tab-button pb-3 font-label-sm text-label-sm px-stack-md border-b-2 border-transparent text-on-surface-variant hover:text-secondary transition-colors" data-map-tab="alert">
-                <span class="material-symbols-outlined text-base align-middle">warning</span>
-                <span>Alerte tempête</span>
             </button>
         </div>
 
@@ -41,11 +37,11 @@ require_once __DIR__ . '/partials/header.php';
             </div>
 
             <!-- Map Container -->
-            <div class="relative" style="height: 600px;">
+            <div class="relative isolate" style="height: 600px;">
                 <div class="map w-full h-full" data-map="age"></div>
 
                 <!-- Map Overlay Controls -->
-                <div class="absolute top-4 left-4 flex flex-col gap-2 z-10">
+                <div class="absolute top-4 left-4 flex flex-col gap-2 z-[1001]">
                     <div class="bg-white p-3 rounded-lg shadow-md border border-outline-variant">
                         <div class="flex items-center gap-2 mb-2 pb-2 border-b border-outline-variant">
                             <span class="w-3 h-3 rounded-full bg-secondary"></span>
@@ -59,7 +55,7 @@ require_once __DIR__ . '/partials/header.php';
                 </div>
 
                 <!-- Zoom Controls -->
-                <div class="absolute bottom-4 right-4 flex flex-col gap-1 z-10">
+                <div class="absolute bottom-4 right-4 flex flex-col gap-1 z-[1001]">
                     <button class="bg-white w-10 h-10 rounded-lg flex items-center justify-center shadow-md hover:bg-surface-container border border-outline-variant transition-colors" title="Zoom in">
                         <span class="material-symbols-outlined text-secondary">add</span>
                     </button>

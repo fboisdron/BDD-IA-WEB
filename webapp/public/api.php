@@ -58,6 +58,36 @@ try {
         $payload['remarquable'] = to_nullable_int($payload['remarquable']) ?? 0;
 
         $result = $repository->insertTree($payload);
+
+        if ($result['id'] !== null) {
+            $alerteFields = ['haut_tot', 'haut_tronc', 'tronc_diam', 'age_estim', 'fk_stadedev', 'fk_port', 'fk_pied', 'fk_situation', 'fk_revetement', 'feuillage'];
+            $canPredict = array_reduce($alerteFields, static fn ($carry, $field) => $carry && ($payload[$field] !== null && $payload[$field] !== ''), true);
+
+            if ($canPredict) {
+                $bridge = new PythonBridge();
+                $iaRoot = dirname(APP_ROOT) . '/IA/3-Systeme-alerte-tempête';
+                $alerteResult = $bridge->run($iaRoot . '/predire_alerte.py', [
+                    'model' => $iaRoot . '/random_forest_alerte.pkl',
+                    'haut_tot'      => $payload['haut_tot'],
+                    'haut_tronc'    => $payload['haut_tronc'],
+                    'tronc_diam'    => $payload['tronc_diam'],
+                    'age_estim'     => $payload['age_estim'],
+                    'fk_stadedev'   => $payload['fk_stadedev'],
+                    'fk_port'       => $payload['fk_port'],
+                    'fk_pied'       => $payload['fk_pied'],
+                    'fk_situation'  => $payload['fk_situation'],
+                    'fk_revetement' => $payload['fk_revetement'],
+                    'feuillage'     => $payload['feuillage'],
+                ]);
+
+                if ($alerteResult['ok']) {
+                    $parsed = $bridge->parseAlert($alerteResult['output']);
+                    $repository->setAlerte($result['id'], $parsed['alert']);
+                    $result['alerte_tempete'] = $parsed['alert'];
+                }
+            }
+        }
+
         json_response(['ok' => true, 'data' => $result]);
     }
 

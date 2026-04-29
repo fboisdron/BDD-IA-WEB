@@ -214,6 +214,7 @@
 
         const caption = document.querySelector('[data-map-caption]');
         const title = document.querySelector('[data-map-title]');
+        const countEl = document.querySelector('[data-map-count]');
         const tabs = document.querySelectorAll('[data-map-tab]');
         let layerGroup = L.layerGroup().addTo(map);
 
@@ -229,6 +230,7 @@
             }
 
             const data = await json(await fetch(`${apiUrl}?action=map&mode=${encodeURIComponent(mode)}`));
+            if (countEl) countEl.textContent = formatNumber(data.points.length);
             data.points.forEach((point) => {
                 const marker = L.circleMarker([point.lat, point.lng], {
                     radius: point.style.radius,

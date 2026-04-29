@@ -1,3 +1,4 @@
+-- psql -U postgres -d saint_quentin_arbre -f webapp/sql/schema.sql
 CREATE TABLE IF NOT EXISTS arbres (
     id BIGSERIAL PRIMARY KEY,
     clc_quartier TEXT,
@@ -23,8 +24,11 @@ CREATE TABLE IF NOT EXISTS arbres (
     remarquable INTEGER DEFAULT 0,
     longitude DOUBLE PRECISION,
     latitude DOUBLE PRECISION,
+    alerte_tempete BOOLEAN DEFAULT NULL,
     created_at TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
 );
+
+ALTER TABLE arbres ADD COLUMN IF NOT EXISTS alerte_tempete BOOLEAN DEFAULT NULL;
 
 CREATE INDEX IF NOT EXISTS idx_arbres_quartier ON arbres (clc_quartier);
 CREATE INDEX IF NOT EXISTS idx_arbres_secteur ON arbres (clc_secteur);

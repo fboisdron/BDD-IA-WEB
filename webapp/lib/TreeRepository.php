@@ -117,14 +117,18 @@ final class TreeRepository
     public function mapPoints(string $mode, array $filters = []): array
     {
         $mode = in_array($mode, ['age', 'cluster', 'alert'], true) ? $mode : 'age';
-        $data = $this->listTrees(array_merge($filters, ['limit' => 500, 'page' => 1]));
+
+        $stmt = $this->pdo->query(
+            'SELECT id_arbre, clc_quartier, clc_secteur, haut_tot, tronc_diam,
+                    fk_arb_etat, fk_nomtech, nomfrancais, age_estim, remarquable,
+                    alerte_tempete, longitude, latitude
+             FROM arbres
+             WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
+        );
+        $rows = $stmt->fetchAll();
         $points = [];
 
-        foreach ($data['items'] as $row) {
-            if ($row['latitude'] === null || $row['longitude'] === null) {
-                continue;
-            }
-
+        foreach ($rows as $row) {
             $age = (float) ($row['age_estim'] ?? 0);
             $height = (float) ($row['haut_tot'] ?? 0);
             $diameter = (float) ($row['tronc_diam'] ?? 0);
@@ -142,8 +146,11 @@ final class TreeRepository
                 $style['color'] = $diameter >= 0.8 ? '#173f5f' : ($diameter >= 0.4 ? '#20639b' : '#3caea3');
                 $style['label'] = $diameter >= 0.8 ? 'Grand gabarit' : ($diameter >= 0.4 ? 'Gabarit moyen' : 'Petit gabarit');
             } else {
-                $style['color'] = ((int) ($row['remarquable'] ?? 0) === 1 || ((int) ($row['fk_arb_etat'] ?? 0) === 1)) ? '#b42318' : '#2563eb';
-                $style['label'] = ((int) ($row['remarquable'] ?? 0) === 1) ? 'Remarquable' : 'Surveillance';
+                $hasAlert = $row['alerte_tempete'] !== null
+                    ? (bool) $row['alerte_tempete']
+                    : false;
+                $style['color'] = $hasAlert ? '#b42318' : '#2563eb';
+                $style['label'] = $hasAlert ? 'Alerte tempête' : 'Risque faible';
             }
 
             $points[] = [
@@ -179,7 +186,7 @@ final class TreeRepository
         $placeholders = array_map(static fn (string $column): string => ':' . $column, $columns);
 
         $sql = sprintf(
-            'INSERT INTO arbres (%s) VALUES (%s)',
+            'INSERT INTO arbres (%s) VALUES (%s) RETURNING id',
             implode(', ', $columns),
             implode(', ', $placeholders)
         );
@@ -200,10 +207,20 @@ final class TreeRepository
         }
 
         $stmt->execute();
+        $inserted = $stmt->fetch();
 
         return [
             'inserted' => true,
+            'id' => $inserted ? (int) $inserted['id'] : null,
             'id_arbre' => $normalized['id_arbre'] ?? null,
         ];
+    }
+
+    public function setAlerte(int $id, ?bool $alerte): void
+    {
+        $stmt = $this->pdo->prepare('UPDATE arbres SET alerte_tempete = :alerte WHERE id = :id');
+        $stmt->bindValue(':alerte', $alerte, $alerte === null ? PDO::PARAM_NULL : PDO::PARAM_BOOL);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
     }
 }

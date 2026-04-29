@@ -3,7 +3,25 @@
 declare(strict_types=1);
 
 define('APP_ROOT', dirname(__DIR__));
-define('APP_NAME', 'Saint-Quentin Arboré');
+
+// Load .env file if present (real env vars take precedence)
+$envFile = APP_ROOT . '/.env';
+if (is_file($envFile)) {
+    foreach (file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES) as $line) {
+        $line = trim($line);
+        if ($line === '' || $line[0] === '#' || !str_contains($line, '=')) {
+            continue;
+        }
+        [$key, $value] = explode('=', $line, 2);
+        $key   = trim($key);
+        $value = trim($value);
+        if ($key !== '' && getenv($key) === false) {
+            putenv("$key=$value");
+        }
+    }
+}
+
+define('APP_NAME', getenv('APP_NAME') ?: 'Saint-Quentin Arboré');
 define('APP_BASE_URL', getenv('APP_BASE_URL') ?: '');
 
 // Database type: 'pgsql' for PostgreSQL, 'mysql' for MySQL

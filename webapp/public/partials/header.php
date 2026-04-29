@@ -134,13 +134,21 @@ $currentPage = $currentPage ?? 'home';
             <a class="<?= $currentPage === 'ajout' ? 'text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-700 dark:border-emerald-400 pb-1 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 active:scale-95' ?>" href="ajout.php">Ajouter un arbre</a>
             <a class="<?= $currentPage === 'besoins' ? 'text-emerald-700 dark:text-emerald-400 border-b-2 border-emerald-700 dark:border-emerald-400 pb-1 font-bold' : 'text-slate-600 dark:text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all duration-200 active:scale-95' ?>" href="besoins.php">Besoins clients</a>
         </nav>
-        <div class="flex items-center gap-4">
-            <button class="p-2 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 active:scale-95 transition-all">
-                <span class="material-symbols-outlined">notifications</span>
-            </button>
-            <button class="p-2 rounded-full hover:bg-emerald-50 dark:hover:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 active:scale-95 transition-all">
-                <span class="material-symbols-outlined">account_circle</span>
-            </button>
+        <div class="flex items-center gap-3">
+            <?php if (isset($_SESSION['user'])): ?>
+                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800">
+                    <span class="material-symbols-outlined text-emerald-700 dark:text-emerald-400 text-base">person</span>
+                    <span class="text-sm font-semibold text-emerald-800 dark:text-emerald-200"><?= htmlspecialchars($_SESSION['user']['username']) ?></span>
+                    <?php if ($_SESSION['user']['role'] === 'admin'): ?>
+                        <span class="text-[10px] font-bold uppercase bg-emerald-700 text-white px-1.5 py-0.5 rounded-full">admin</span>
+                    <?php endif; ?>
+                </div>
+                <a href="logout.php"
+                   class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-outline-variant text-sm font-medium text-slate-600 dark:text-slate-400 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-base">logout</span>
+                    <span class="hidden sm:inline">Déconnexion</span>
+                </a>
+            <?php endif; ?>
         </div>
     </div>
 </header>

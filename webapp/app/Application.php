@@ -20,9 +20,24 @@ spl_autoload_register(function ($class) {
 });
 
 require_once __DIR__ . '/../config/app.php';
+require_once __DIR__ . '/../lib/helpers.php';
 require_once __DIR__ . '/../lib/Database.php';
 require_once __DIR__ . '/../lib/TreeRepository.php';
+require_once __DIR__ . '/../lib/AuthRepository.php';
 require_once __DIR__ . '/../lib/PythonBridge.php';
+
+// Session
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params(['lifetime' => 0, 'path' => '/', 'httponly' => true, 'samesite' => 'Strict']);
+    session_start();
+}
+
+// Auth guard
+if (!isset($_SESSION['user'])) {
+    $uri = $_SERVER['REQUEST_URI'] ?? '';
+    header('Location: /public/login.php?redirect=' . urlencode($uri));
+    exit;
+}
 
 use Database;
 use TreeRepository;

@@ -96,3 +96,13 @@ BEGIN
             CHECK (feuillage IS NULL OR feuillage IN ('Conifère', 'Feuillu', 'N/A'));
     END IF;
 END $$;
+
+
+CREATE TABLE IF NOT EXISTS users (
+    id            BIGSERIAL PRIMARY KEY,
+    username      TEXT NOT NULL UNIQUE,
+    email         TEXT UNIQUE,
+    password_hash TEXT NOT NULL,
+    role          TEXT NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
+    created_at    TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW()
+);

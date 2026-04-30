@@ -3,7 +3,7 @@
     <div class="flex flex-col md:flex-row justify-between items-center w-full px-8 py-12 max-w-[1280px] mx-auto gap-4">
         <div class="flex flex-col items-center md:items-start gap-2">
             <div class="text-lg font-bold text-slate-900 dark:text-white"><?= htmlspecialchars(APP_NAME) ?></div>
-            <p class="text-xs text-slate-500 dark:text-slate-400">© 2024 Ville de Saint-Quentin. Patrimoine, analyse et décisions en temps réel.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">© 2026 Ville de Saint-Quentin. Patrimoine, analyse et décisions en temps réel.</p>
         </div>
         <nav class="flex flex-wrap justify-center gap-8 text-xs uppercase tracking-widest font-semibold">
             <a class="text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors opacity-100 hover:opacity-80" href="#">Charte municipale</a>
